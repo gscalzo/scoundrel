@@ -11,7 +11,9 @@ import * as Deck from './deck.js';
 
 // Initialize the game when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Scoundrel game initializing...');
+    console.log('%c Scoundrel Card Game ', 'background: #2c3e50; color: #ecf0f1; font-size: 18px; font-weight: bold; padding: 5px;');
+    console.log('%c A web-based card game built with vanilla JavaScript, HTML5, and CSS3. ', 'font-style: italic; color: #7f8c8d;');
+    console.log('See README.md for game details and instructions.');
     
     // Test deck module
     const deck = Deck.createDeck();

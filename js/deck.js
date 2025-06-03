@@ -85,5 +85,5 @@ export function dealCards(deck, count) {
  * @returns {string} Path to card back image
  */
 export function getCardBackImagePath() {
-  return 'card_back.png';
+  return 'card_back.png'; // Using the root-relative path
 }
