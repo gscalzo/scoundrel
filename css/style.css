@@ -182,12 +182,20 @@ body {
     justify-content: center;
     align-items: center;
     transition: all 0.3s ease;
+    position: relative;
+    overflow: visible; /* Allow hover effects to show outside the card */
 }
 
 .card-slot img {
     width: 100%;
     height: 100%;
     border-radius: 6px;
+    position: relative; /* Enable positioning context for hover effects */
+}
+
+.card {
+    position: relative;
+    z-index: 1;
 }
 
 /* Game Controls */
@@ -307,16 +315,94 @@ body {
 /* Drag and Drop Styling */
 .draggable {
     cursor: grab;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.draggable:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 10;
 }
 
 .draggable:active {
     cursor: grabbing;
 }
 
+.dragging {
+    opacity: 0.6;
+}
+
 .drop-target {
     border: 2px dashed #3498db;
+    transition: all 0.3s ease;
 }
 
 .drop-target.drag-over {
     background-color: rgba(52, 152, 219, 0.2);
+    border-color: #2980b9;
+    transform: scale(1.05);
+}
+
+/* Card suit colors */
+.card[data-suit="hearts"],
+.card[data-suit="diamonds"] {
+    border-left: 3px solid #e74c3c; /* Red border for hearts and diamonds */
+}
+
+.card[data-suit="clubs"],
+.card[data-suit="spades"] {
+    border-left: 3px solid #2c3e50; /* Black border for clubs and spades */
+}
+
+/* Card hover effects based on type */
+.card[data-suit="hearts"]:hover::before {
+    content: "❤️ Healing";
+    position: absolute;
+    bottom: -25px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    background-color: rgba(44, 62, 80, 0.8);
+    padding: 3px;
+    border-radius: 3px;
+    font-size: 0.8rem;
+}
+
+.card[data-suit="diamonds"]:hover::before {
+    content: "💎 Treasure";
+    position: absolute;
+    bottom: -25px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    background-color: rgba(44, 62, 80, 0.8);
+    padding: 3px;
+    border-radius: 3px;
+    font-size: 0.8rem;
+}
+
+.card[data-suit="clubs"]:hover::before {
+    content: "♣️ Weapon/Enemy";
+    position: absolute;
+    bottom: -25px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    background-color: rgba(44, 62, 80, 0.8);
+    padding: 3px;
+    border-radius: 3px;
+    font-size: 0.8rem;
+}
+
+.card[data-suit="spades"]:hover::before {
+    content: "♠️ Armor/Trap";
+    position: absolute;
+    bottom: -25px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    background-color: rgba(44, 62, 80, 0.8);
+    padding: 3px;
+    border-radius: 3px;
+    font-size: 0.8rem;
 }

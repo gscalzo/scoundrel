@@ -3,12 +3,46 @@
  * Implements HTML5 Drag and Drop API
  */
 
+import * as Game from './game.js';
+import * as UI from './ui.js';
+
 /**
  * Initialize drag and drop functionality
- * @param {Function} onDrop - Callback to invoke when a card is dropped on a valid target
+ * Sets up event listeners for draggable cards and drop targets
  */
-export function initDragAndDrop(onDrop) {
+export function initDragAndDrop() {
     console.log('Initializing drag and drop functionality');
+    
+    // Set up equipment slots as drop targets
+    setupEquipmentDropZones();
+    
+    // Cards will be made draggable when they're rendered
+}
+
+/**
+ * Set up equipment slots as drop targets
+ */
+function setupEquipmentDropZones() {
+    const weaponSlot = document.getElementById('weapon-slot');
+    const armorSlot = document.getElementById('armor-slot');
+    
+    // Make weapon slot a drop target
+    makeDropTarget(weaponSlot, (cardData) => {
+        if (cardData && cardData.suit === 'clubs') {
+            handleEquipmentDrop(cardData, 'weapon');
+        } else {
+            UI.addLogMessage('Only clubs (♣) can be equipped as weapons.');
+        }
+    }, ['clubs']);
+    
+    // Make armor slot a drop target
+    makeDropTarget(armorSlot, (cardData) => {
+        if (cardData && cardData.suit === 'spades') {
+            handleEquipmentDrop(cardData, 'armor');
+        } else {
+            UI.addLogMessage('Only spades (♠) can be equipped as armor.');
+        }
+    }, ['spades']);
 }
 
 /**
@@ -43,26 +77,49 @@ export function makeDraggable(element, data) {
 }
 
 /**
+ * Handle equipment drop
+ * @param {Object} cardData - Data of the dropped card
+ * @param {string} equipmentType - Type of equipment ('weapon' or 'armor')
+ */
+function handleEquipmentDrop(cardData, equipmentType) {
+    console.log(`Card dropped on ${equipmentType} slot:`, cardData);
+    
+    // Find the card object in the room cards
+    const cardIndex = parseInt(cardData.index, 10);
+    
+    if (isNaN(cardIndex) || cardIndex < 0 || cardIndex >= Game.gameState.roomCards.length) {
+        console.error('Invalid card index:', cardIndex);
+        return;
+    }
+    
+    const card = Game.gameState.roomCards[cardIndex];
+    
+    // Attempt to equip the item
+    Game.equipItem(card, equipmentType, cardIndex);
+}
+
+/**
  * Make an element a valid drop target
  * @param {HTMLElement} element - Element to make a drop target
  * @param {Function} onDrop - Function to call when item is dropped
- * @param {Array<string>} allowedTypes - Array of allowed drop types
+ * @param {Array<string>} allowedSuits - Array of allowed card suits
  */
-export function makeDropTarget(element, onDrop, allowedTypes = []) {
+export function makeDropTarget(element, onDrop, allowedSuits = []) {
     if (!element) return;
     
     element.classList.add('drop-target');
     
     element.addEventListener('dragover', (event) => {
-        // Check if this type is allowed
-        const dragData = JSON.parse(event.dataTransfer.getData('text/plain') || '{"type":"unknown"}');
-        
-        if (allowedTypes.length === 0 || allowedTypes.includes(dragData.type)) {
-            // Prevent default to allow drop
-            event.preventDefault();
-            element.classList.add('drag-over');
-            event.dataTransfer.dropEffect = 'move';
-        }
+        // We can't actually access the drag data during dragover due to security restrictions
+        // So we'll just check if any drag is happening and allow drop, then validate in the drop handler
+        event.preventDefault();
+        element.classList.add('drag-over');
+        event.dataTransfer.dropEffect = 'move';
+    });
+    
+    element.addEventListener('dragenter', (event) => {
+        event.preventDefault();
+        element.classList.add('drag-over');
     });
     
     element.addEventListener('dragleave', () => {
@@ -74,7 +131,19 @@ export function makeDropTarget(element, onDrop, allowedTypes = []) {
         element.classList.remove('drag-over');
         
         try {
-            const data = JSON.parse(event.dataTransfer.getData('text/plain'));
+            const dataText = event.dataTransfer.getData('text/plain');
+            if (!dataText) {
+                console.error('No data found in drag event');
+                return;
+            }
+            
+            const data = JSON.parse(dataText);
+            
+            // Filter by suit if allowed suits are specified
+            if (allowedSuits.length > 0 && !allowedSuits.includes(data.suit)) {
+                UI.addLogMessage(`This card cannot be placed here. Only ${allowedSuits.join(', ')} allowed.`);
+                return;
+            }
             
             // Call the provided callback with the dropped data
             if (typeof onDrop === 'function') {
