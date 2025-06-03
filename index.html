@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoundrel - Card Game</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Header with game title -->
+        <header class="game-header">
+            <h1>Scoundrel</h1>
+        </header>
+
+        <!-- Player status area -->
+        <section class="player-status">
+            <div class="player-health">
+                <h2>Health</h2>
+                <div class="health-bar">
+                    <div class="health-bar-fill" id="health-bar-fill"></div>
+                </div>
+                <div class="health-value" id="health-value">20/20</div>
+            </div>
+            
+            <div class="player-equipment">
+                <div class="equipment-slot weapon-slot">
+                    <h3>Weapon</h3>
+                    <div class="equipment-card" id="weapon-slot">
+                        <div class="empty-slot-text">No weapon equipped</div>
+                    </div>
+                    <div class="equipment-stats" id="weapon-stats"></div>
+                </div>
+                
+                <div class="equipment-slot armor-slot">
+                    <h3>Armor</h3>
+                    <div class="equipment-card" id="armor-slot">
+                        <div class="empty-slot-text">No armor equipped</div>
+                    </div>
+                    <div class="equipment-stats" id="armor-stats"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main game area -->
+        <section class="game-area">
+            <!-- Deck area -->
+            <div class="deck-area">
+                <div class="deck-card" id="deck-card">
+                    <img src="card_back.png" alt="Card back" id="deck-card-image">
+                </div>
+                <div class="deck-count" id="deck-count">52 cards left</div>
+            </div>
+
+            <!-- Room cards area -->
+            <div class="room-cards">
+                <h2>Room Cards</h2>
+                <div class="card-slots">
+                    <div class="card-slot" id="room-card-1">
+                        <div class="empty-slot-text">Empty</div>
+                    </div>
+                    <div class="card-slot" id="room-card-2">
+                        <div class="empty-slot-text">Empty</div>
+                    </div>
+                    <div class="card-slot" id="room-card-3">
+                        <div class="empty-slot-text">Empty</div>
+                    </div>
+                    <div class="card-slot" id="room-card-4">
+                        <div class="empty-slot-text">Empty</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game controls area -->
+            <div class="game-controls">
+                <button id="start-game-btn" class="game-btn primary-btn">Start Game</button>
+                <button id="next-room-btn" class="game-btn" disabled>Next Room</button>
+                <button id="reset-game-btn" class="game-btn">Reset Game</button>
+            </div>
+        </section>
+
+        <!-- Message log area -->
+        <section class="message-log-area">
+            <h2>Game Log</h2>
+            <div class="message-log" id="message-log">
+                <p class="log-entry">Welcome to Scoundrel! Press "Start Game" to begin your adventure.</p>
+            </div>
+        </section>
+
+        <!-- Footer area -->
+        <footer class="game-footer">
+            <p>Scoundrel Card Game &copy; 2025</p>
+        </footer>
+    </div>
+
+    <!-- JavaScript modules -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
