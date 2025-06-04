@@ -1,30 +1,44 @@
 /**
  * Card management module for Scoundrel game
  * Contains card definitions, deck operations, and related utilities
- * 
+ *
  * Note: This module uses the enhanced version of face cards (originally suffixed with '2')
  * which feature more detailed artwork.
  */
 
 // Card definitions
-export const SUITS = ['clubs', 'diamonds', 'hearts', 'spades'];
-export const RANKS = ['ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'jack', 'queen', 'king'];
+export const SUITS = ["clubs", "diamonds", "hearts", "spades"];
+export const RANKS = [
+  "ace",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "10",
+  "jack",
+  "queen",
+  "king",
+];
 
 // Mapping of card ranks to their numeric values
 export const CARD_VALUES = {
-  'ace': 1,
-  '2': 2,
-  '3': 3,
-  '4': 4,
-  '5': 5,
-  '6': 6,
-  '7': 7,
-  '8': 8,
-  '9': 9,
-  '10': 10,
-  'jack': 11,
-  'queen': 12,
-  'king': 13
+  ace: 1,
+  2: 2,
+  3: 3,
+  4: 4,
+  5: 5,
+  6: 6,
+  7: 7,
+  8: 8,
+  9: 9,
+  10: 10,
+  jack: 11,
+  queen: 12,
+  king: 13,
 };
 
 /**
@@ -33,7 +47,7 @@ export const CARD_VALUES = {
  */
 export function createDeck() {
   const deck = [];
-  
+
   for (const suit of SUITS) {
     for (const rank of RANKS) {
       deck.push({
@@ -41,11 +55,11 @@ export function createDeck() {
         suit,
         rank,
         value: CARD_VALUES[rank],
-        imagePath: `images/cards/${rank}_of_${suit}.png`
+        imagePath: `images/cards/${rank}_of_${suit}.png`,
       });
     }
   }
-  
+
   return deck;
 }
 
@@ -73,10 +87,10 @@ export function dealCards(deck, count) {
   if (count > deck.length) {
     throw new Error(`Cannot deal ${count} cards from a deck of ${deck.length}`);
   }
-  
+
   const dealtCards = deck.slice(0, count);
   const remainingDeck = deck.slice(count);
-  
+
   return { dealtCards, remainingDeck };
 }
 
@@ -85,5 +99,26 @@ export function dealCards(deck, count) {
  * @returns {string} Path to card back image
  */
 export function getCardBackImagePath() {
-  return 'card_back.png'; // Using the root-relative path
+  return "card_back.png"; // Using the root-relative path
+}
+
+/**
+ * Trims the deck for Scoundrel rules: removes all red face cards (J, Q, K) and red aces.
+ * @param {Array} deck - The deck to trim
+ * @returns {Array} The trimmed deck
+ */
+export function trimDeckForScoundrel(deck) {
+  return deck.filter((card) => {
+    // Red suits
+    const isRed = card.suit === "hearts" || card.suit === "diamonds";
+    // Face or ace
+    const isFaceOrAce =
+      card.rank === "jack" ||
+      card.rank === "queen" ||
+      card.rank === "king" ||
+      card.rank === "ace";
+    // Remove if red and face/ace
+    if (isRed && isFaceOrAce) return false;
+    return true;
+  });
 }
