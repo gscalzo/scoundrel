@@ -18,6 +18,7 @@ export const gameState = {
   currentRound: 0,
   gameActive: false,
   score: 0,
+  lastActionWasSkip: false,
 };
 
 /**
@@ -119,6 +120,9 @@ export function nextRoom() {
 
   // Deal new room cards
   dealRoomCards();
+
+  // Reset skip flag
+  gameState.lastActionWasSkip = false;
 
   // Update UI
   UI.addLogMessage(`Entered room ${gameState.currentRound}. Be careful!`);
@@ -329,6 +333,9 @@ export function processCardEffects(card, cardIndex) {
     gameState.roomCards.splice(cardIndex, 1);
     UI.displayRoomCards(gameState.roomCards);
   }
+
+  // Reset skip flag
+  gameState.lastActionWasSkip = false;
 }
 
 /**
@@ -441,4 +448,34 @@ function handleSpadesCard(card, cardIndex) {
     );
     // Equipping is handled by drag and drop
   }
+}
+
+/**
+ * Skip the current room: collect all 4 cards, place them under the dungeon, deal a fresh 4.
+ * Cannot skip twice in a row.
+ */
+export function skipRoom() {
+  if (!gameState.gameActive) {
+    UI.addLogMessage("Game is not active. Press Start Game to begin.");
+    return;
+  }
+  if (gameState.lastActionWasSkip) {
+    UI.addLogMessage("You cannot skip two rooms in a row!");
+    return;
+  }
+  if (gameState.roomCards.length !== 4) {
+    UI.addLogMessage(
+      "You can only skip when there are exactly 4 cards in the room."
+    );
+    return;
+  }
+  // Place all 4 cards under the deck
+  gameState.deck = [...gameState.deck, ...gameState.roomCards];
+  gameState.roomCards = [];
+  // Deal a fresh 4 cards
+  dealRoomCards();
+  // Mark that last action was a skip
+  gameState.lastActionWasSkip = true;
+  UI.addLogMessage("Skipped the room. Dealt a fresh 4 cards.");
+  UI.updateButtonStates(gameState);
 }

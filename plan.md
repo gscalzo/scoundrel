@@ -4,7 +4,7 @@
 
 ## [x] 1. Deck Preparation
 - [x] Implement logic to create a standard 52-card deck. (DONE in js/deck.js)
-- [ ] Remove all red face cards (J, Q, K) and red aces from the deck. <!-- NOT DONE: Must add logic to trim these cards from the deck in createDeck or after deck creation. -->
+- [x] Remove all red face cards (J, Q, K) and red aces from the deck. (DONE in js/deck.js and used in js/game.js)
 - [x] Shuffle the trimmed deck to form the dungeon. (DONE in js/game.js)
 
 ## [x] 2. Game Setup
@@ -15,9 +15,9 @@
 - [x] Define data structures for cards, including suit, value, and type (monster, weapon, potion). (DONE in js/deck.js)
 - [x] Implement logic to display cards and their types/values. (DONE in js/ui.js)
 
-## [ ] 4. Room Cycle Logic
-- [ ] Implement the option to skip a room (collect all 4 cards, place under dungeon, deal new 4). <!-- NOT DONE: No skip logic in game or UI. -->
-- [ ] Enforce the rule: may not skip twice in a row. <!-- NOT DONE: No tracking or enforcement of consecutive skips. -->
+## [x] 4. Room Cycle Logic
+- [x] Implement the option to skip a room (collect all 4 cards, place under dungeon, deal new 4). (DONE in js/game.js: skipRoom)
+- [x] Enforce the rule: may not skip twice in a row. (DONE in js/game.js: gameState.lastActionWasSkip)
 - [ ] Implement logic to play any 3 of the 4 cards, resolving each fully. <!-- NOT DONE: Current logic does not enforce this rule. -->
 - [ ] Carry over the unused 4th card and deal 3 new cards to form the next room. <!-- NOT DONE: No logic for carrying over a card. -->
 
