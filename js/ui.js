@@ -3,6 +3,8 @@
  * Handles DOM manipulation and UI updates
  */
 
+import { gameState } from "./game.js";
+
 /**
  * Update the player health display
  * @param {number} currentHealth - Current health value
@@ -116,6 +118,24 @@ export function renderEquipment(equipmentCard, slotType) {
     // Add to DOM
     slot.appendChild(equipImg);
 
+    // If weapon, render defeated monsters under the weapon
+    if (
+      slotType === "weapon" &&
+      gameState.weaponStack &&
+      gameState.weaponStack.length > 0
+    ) {
+      const stackContainer = document.createElement("div");
+      stackContainer.classList.add("weapon-stack-container");
+      gameState.weaponStack.forEach((monsterCard) => {
+        const monsterImg = document.createElement("img");
+        monsterImg.src = monsterCard.imagePath;
+        monsterImg.alt = monsterCard.id;
+        monsterImg.classList.add("weapon-stack-card");
+        stackContainer.appendChild(monsterImg);
+      });
+      slot.appendChild(stackContainer);
+    }
+
     // Update stats
     statsElement.textContent = `Power: ${equipmentCard.value}`;
   } else {
@@ -146,22 +166,29 @@ export function clearRoomCards() {
 export function displayRoomCards(cardsArray) {
   // First clear all room cards
   clearRoomCards();
-
+  // Get how many cards have been played
+  let playedCount = 0;
+  try {
+    // Import gameState dynamically to avoid circular import
+    playedCount = require("./game.js").gameState.cardsPlayedThisRoom;
+  } catch (e) {
+    playedCount = 0;
+  }
   // Then render each card in its respective slot
   for (let i = 0; i < Math.min(cardsArray.length, 4); i++) {
     const slotId = `room-card-${i + 1}`;
     const slot = document.getElementById(slotId);
-
     if (slot && cardsArray[i]) {
       const cardImg = renderCard(slot, cardsArray[i], false);
-
-      // Add index data attribute for drag and drop functionality
       cardImg.dataset.index = i;
-
-      // Set up drag events for the card
       setupCardDragEvents(cardImg, cardsArray[i], i);
+      // Visually mark played cards
+      if (i < playedCount) {
+        cardImg.classList.add("card-played");
+      }
     }
   }
+  updateCardsPlayedDisplay(playedCount);
 }
 
 /**
@@ -255,4 +282,17 @@ export function updateButtonStates(gameState) {
       gameState.roomCards.length === 4
     );
   }
+}
+
+export function updateCardsPlayedDisplay(count) {
+  let display = document.getElementById("cards-played-display");
+  if (!display) {
+    // Create the display if it doesn't exist
+    const roomCardsSection = document.querySelector(".room-cards");
+    display = document.createElement("div");
+    display.id = "cards-played-display";
+    display.className = "cards-played-display";
+    roomCardsSection.insertBefore(display, roomCardsSection.firstChild);
+  }
+  display.textContent = `Cards played: ${count}/3`;
 }

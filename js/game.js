@@ -19,6 +19,8 @@ export const gameState = {
   gameActive: false,
   score: 0,
   lastActionWasSkip: false,
+  weaponStack: [], // Stack of defeated monsters under the weapon
+  cardsPlayedThisRoom: 0, // Track how many cards have been played in the current room
 };
 
 /**
@@ -93,7 +95,8 @@ export function dealRoomCards() {
 
   // Display the room cards
   UI.displayRoomCards(gameState.roomCards);
-
+  // Reset cards played counter
+  gameState.cardsPlayedThisRoom = 0;
   return gameState.roomCards;
 }
 
@@ -261,6 +264,7 @@ export function equipItem(card, type, cardIndex) {
   // Add current equipment to discard pile if any
   if (type === "weapon" && gameState.currentWeapon !== null) {
     gameState.discardPile.push(gameState.currentWeapon);
+    gameState.weaponStack = []; // Clear defeated monsters stack
   } else if (type === "armor" && gameState.currentArmor !== null) {
     gameState.discardPile.push(gameState.currentArmor);
   }
@@ -332,10 +336,12 @@ export function processCardEffects(card, cardIndex) {
   if (cardIndex !== undefined && cardIndex >= 0) {
     gameState.roomCards.splice(cardIndex, 1);
     UI.displayRoomCards(gameState.roomCards);
+    // Increment cards played counter
+    gameState.cardsPlayedThisRoom++;
+    UI.updateCardsPlayedDisplay(gameState.cardsPlayedThisRoom);
   }
 
-  // Reset skip flag
-  gameState.lastActionWasSkip = false;
+  gameState.lastActionWasSkip = false; // Reset skip flag on any card play
 }
 
 /**
@@ -382,34 +388,35 @@ function handleDiamondsCard(card) {
  * @param {number} cardIndex - Index of the card in roomCards array
  */
 function handleClubsCard(card, cardIndex) {
-  // Face cards are enemies
   if (["jack", "queen", "king"].includes(card.rank)) {
     const damage = card.value;
-
-    // Player takes damage, modified by armor
     let actualDamage = damage;
-    if (gameState.currentArmor) {
+    let defeatedWithWeapon = false;
+    if (gameState.currentWeapon) {
+      actualDamage = Math.max(0, damage - gameState.currentWeapon.value);
+      defeatedWithWeapon = true;
+      UI.addLogMessage(
+        `Fought ${card.rank} of clubs with weapon! Damage reduced from ${damage} to ${actualDamage}.`
+      );
+    } else if (gameState.currentArmor) {
       actualDamage = Math.max(1, damage - gameState.currentArmor.value);
       UI.addLogMessage(
         `Encountered ${card.rank} of clubs! Your armor reduced damage from ${damage} to ${actualDamage}.`
       );
     } else {
       UI.addLogMessage(
-        `Encountered ${card.rank} of clubs! Took ${damage} damage with no armor.`
+        `Encountered ${card.rank} of clubs! Took ${damage} damage with no armor or weapon.`
       );
     }
-
-    // Apply damage
     updateHealth(-actualDamage);
-
-    // Add to discard pile
+    if (defeatedWithWeapon) {
+      gameState.weaponStack.push(card);
+    }
     gameState.discardPile.push(card);
   } else {
-    // Number cards can be equipped as weapons
     UI.addLogMessage(
       `Found ${card.rank} of clubs. Drag to weapon slot to equip.`
     );
-    // Equipping is handled by drag and drop
   }
 }
 
@@ -476,6 +483,12 @@ export function skipRoom() {
   dealRoomCards();
   // Mark that last action was a skip
   gameState.lastActionWasSkip = true;
+  // Reset cards played counter
+  gameState.cardsPlayedThisRoom = 0;
   UI.addLogMessage("Skipped the room. Dealt a fresh 4 cards.");
   UI.updateButtonStates(gameState);
+}
+
+export function getCardsPlayedThisRoom() {
+  return gameState.cardsPlayedThisRoom;
 }
