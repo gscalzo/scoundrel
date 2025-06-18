@@ -21,6 +21,7 @@ export const gameState = {
   weaponStack: [], // Stack of defeated monsters under the weapon
   cardsPlayedThisRoom: 0, // Track how many cards have been played in the current room
   carryOverCard: null, // Card carried over from previous room
+  potionUsedThisRoom: false, // Track if a potion has healed this room (Scoundrel rule)
 };
 
 /**
@@ -37,6 +38,7 @@ export function startNewGame() {
   gameState.discardPile = [];
   gameState.carryOverCard = null;
   gameState.weaponStack = [];
+  gameState.potionUsedThisRoom = false;
 
   // Create and shuffle a new deck
   const newDeck = Deck.createDeck();
@@ -59,6 +61,7 @@ export function startNewGame() {
   // Add game start message
   UI.addLogMessage("Game started! Deal with the cards in front of you.");
   UI.updateCardsPlayedDisplay(gameState.cardsPlayedThisRoom);
+  UI.updatePotionUsageDisplay(gameState.potionUsedThisRoom);
 
   return gameState;
 }
@@ -108,9 +111,11 @@ export function dealRoomCards() {
 
   // Display the room cards
   UI.displayRoomCards(gameState.roomCards);
-  // Reset cards played counter
+  // Reset room counters
   gameState.cardsPlayedThisRoom = 0;
+  gameState.potionUsedThisRoom = false; // Reset potion usage for new room
   UI.updateCardsPlayedDisplay(gameState.cardsPlayedThisRoom);
+  UI.updatePotionUsageDisplay(gameState.potionUsedThisRoom);
   UI.updateButtonStates(gameState);
   return gameState.roomCards;
 }
@@ -179,6 +184,7 @@ export function resetGame() {
   gameState.score = 0;
   gameState.carryOverCard = null;
   gameState.weaponStack = [];
+  gameState.potionUsedThisRoom = false;
 
   // Clear UI
   UI.updateHealthDisplay(gameState.playerHealth, gameState.maxHealth);
@@ -401,15 +407,23 @@ export function processCardEffects(card, cardIndex) {
 function handleHeartsCard(card) {
   const healAmount = card.value;
 
-  // Heal the player
-  updateHealth(healAmount);
+  if (!gameState.potionUsedThisRoom) {
+    // First potion this room - heal the player
+    updateHealth(healAmount);
+    gameState.potionUsedThisRoom = true;
+    
+    UI.addLogMessage(
+      `Used ${card.rank} of hearts to heal ${healAmount} health points.`
+    );
+    UI.updatePotionUsageDisplay(gameState.potionUsedThisRoom);
+  } else {
+    // Additional potion this room - no healing effect
+    UI.addLogMessage(
+      `Drank ${card.rank} of hearts, but it has no effect (only first potion per room heals).`
+    );
+  }
 
-  // Add message
-  UI.addLogMessage(
-    `Used ${card.rank} of hearts to heal ${healAmount} health points.`
-  );
-
-  // Add to discard pile
+  // Add to discard pile regardless of healing effect
   gameState.discardPile.push(card);
 }
 
@@ -475,9 +489,11 @@ export function skipRoom() {
   dealRoomCards();
   // Mark that last action was a skip
   gameState.lastActionWasSkip = true;
-  // Reset cards played counter
+  // Reset room counters
   gameState.cardsPlayedThisRoom = 0;
+  gameState.potionUsedThisRoom = false; // Reset potion usage for new room
   UI.addLogMessage("Skipped the room. Dealt a fresh 4 cards.");
+  UI.updatePotionUsageDisplay(gameState.potionUsedThisRoom);
   UI.updateButtonStates(gameState);
 }
 

@@ -28,9 +28,9 @@
 - [x] Track defeated monsters under the weapon and enforce the strictly weaker monster rule. (DONE in js/game.js: weaponStack tracking and canAttackMonster validation)
 - [x] Allow bare-handed combat even if a weapon is equipped. (DONE in js/game.js: fightBareHanded function and js/cardInteraction.js: player choice dialog)
 
-## [ ] 6. Potion System
-- [ ] Implement logic for drinking potions (first potion heals, others do not in the same turn). <!-- NOT DONE: All hearts heal, no 'first only' logic. -->
-- [ ] Allow multiple potions to be played in a turn, but only the first heals. <!-- NOT DONE: Not enforced. -->
+## [x] 6. Potion System
+- [x] Implement logic for drinking potions (first potion heals, others do not in the same turn). (DONE in js/game.js: potionUsedThisRoom flag and handleHeartsCard logic)
+- [x] Allow multiple potions to be played in a turn, but only the first heals. (DONE in js/game.js: subsequent potions consumed but don't heal, with UI warnings)
 
 ## [x] 7. Health Tracking
 - [x] Update health counter after each combat and potion use. (DONE)

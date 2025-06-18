@@ -308,3 +308,27 @@ export function updateCardsPlayedDisplay(count) {
     display.style.color = "#2c3e50"; // Default color
   }
 }
+
+/**
+ * Update potion usage display
+ * @param {boolean} potionUsed - Whether a potion has been used this room
+ */
+export function updatePotionUsageDisplay(potionUsed) {
+  let display = document.getElementById("potion-usage-display");
+  if (!display) {
+    // Create the display if it doesn't exist
+    const roomCardsSection = document.querySelector(".room-cards");
+    display = document.createElement("div");
+    display.id = "potion-usage-display";
+    display.className = "potion-usage-display";
+    roomCardsSection.insertBefore(display, roomCardsSection.firstChild);
+  }
+  
+  if (potionUsed) {
+    display.textContent = "🧪 Potion used this room (additional potions won't heal)";
+    display.style.color = "#e67e22"; // Orange warning
+  } else {
+    display.textContent = "🧪 Next potion will heal";
+    display.style.color = "#27ae60"; // Green ready
+  }
+}

@@ -28,8 +28,15 @@ export function handleCardClick(event) {
     // Process card based on Scoundrel rules
     switch (card.suit) {
         case 'hearts':
-            // Hearts are healing potions
-            Game.processCardEffects(card, cardIndex);
+            // Hearts are healing potions - warn if already used one this room
+            if (Game.gameState.potionUsedThisRoom) {
+                const proceed = confirm(`You've already used a potion this room. This ${card.rank} of hearts won't heal you.\n\nDrink it anyway?`);
+                if (proceed) {
+                    Game.processCardEffects(card, cardIndex);
+                }
+            } else {
+                Game.processCardEffects(card, cardIndex);
+            }
             break;
             
         case 'diamonds':

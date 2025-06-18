@@ -65,7 +65,6 @@ The game implements a card-based dungeon crawler with specific mechanics:
 
 ### Known Incomplete Features
 According to plan.md, several Scoundrel rules are not fully implemented:
-- First-potion-only healing rule per turn
 - Win condition when deck is fully used
 
 ### Recently Completed Features
@@ -76,3 +75,5 @@ According to plan.md, several Scoundrel rules are not fully implemented:
 - ✅ "Strictly weaker" monster rule for weapon usage
 - ✅ Defeated monster stacking under weapons
 - ✅ Proper card type handling: ♦️ weapons, ♣️♠️ monsters, ♥️ potions
+- ✅ First-potion-only healing rule per room
+- ✅ Visual indicators for potion usage status
