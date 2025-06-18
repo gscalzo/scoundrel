@@ -332,3 +332,45 @@ export function updatePotionUsageDisplay(potionUsed) {
     display.style.color = "#27ae60"; // Green ready
   }
 }
+
+/**
+ * Display game victory status
+ */
+export function displayVictoryStatus() {
+  // Create a prominent victory banner
+  let banner = document.getElementById("victory-banner");
+  if (!banner) {
+    banner = document.createElement("div");
+    banner.id = "victory-banner";
+    banner.className = "victory-banner";
+    banner.style.cssText = `
+      background: linear-gradient(45deg, #f1c40f, #f39c12);
+      color: #2c3e50;
+      text-align: center;
+      padding: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      border: 3px solid #e67e22;
+      border-radius: 10px;
+      margin: 10px;
+      animation: victoryPulse 2s ease-in-out infinite;
+    `;
+    
+    // Insert at the top of the game container
+    const gameContainer = document.querySelector(".game-container");
+    gameContainer.insertBefore(banner, gameContainer.firstChild);
+  }
+  
+  banner.innerHTML = "🎉 VICTORY! DUNGEON CONQUERED! 🎉";
+  banner.style.display = "block";
+}
+
+/**
+ * Hide the victory banner
+ */
+export function hideVictoryStatus() {
+  const banner = document.getElementById("victory-banner");
+  if (banner) {
+    banner.style.display = "none";
+  }
+}

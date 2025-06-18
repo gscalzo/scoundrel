@@ -56,6 +56,7 @@ export function startNewGame() {
   UI.updateHealthDisplay(gameState.playerHealth, gameState.maxHealth);
   UI.renderEquipment(null, "weapon");
   UI.updateDeckCount(gameState.deck.length);
+  UI.hideVictoryStatus();
   UI.updateButtonStates(gameState);
 
   // Add game start message
@@ -85,9 +86,8 @@ export function dealRoomCards() {
       gameState.discardPile = [];
       UI.addLogMessage("Reshuffled discard pile back into the deck.");
     } else {
-      // Game over - no more cards
-      gameState.gameActive = false;
-      UI.addLogMessage("No more cards! Game over.");
+      // Victory - dungeon deck fully used up!
+      gameWin();
       return [];
     }
   }
@@ -191,6 +191,7 @@ export function resetGame() {
   UI.renderEquipment(null, "weapon");
   UI.updateDeckCount(0);
   UI.clearRoomCards();
+  UI.hideVictoryStatus();
   UI.updateButtonStates(gameState);
 
   // Add reset message
@@ -241,7 +242,7 @@ export function updateHealth(amount) {
 }
 
 /**
- * Handle game over
+ * Handle game over (loss)
  */
 function gameOver() {
   gameState.gameActive = false;
@@ -249,6 +250,42 @@ function gameOver() {
   UI.addLogMessage(
     `GAME OVER! You survived ${gameState.currentRound} rooms and scored ${gameState.score} points.`
   );
+  UI.updateButtonStates(gameState);
+
+  // Disable draggable cards
+  const cards = document.querySelectorAll(".card");
+  cards.forEach((card) => {
+    card.setAttribute("draggable", "false");
+    card.classList.remove("draggable");
+  });
+}
+
+/**
+ * Handle winning the game (deck fully used up)
+ */
+function gameWin() {
+  gameState.gameActive = false;
+
+  // Show victory banner
+  UI.displayVictoryStatus();
+
+  UI.addLogMessage(
+    `🎉 VICTORY! You have conquered the entire dungeon! 🎉`
+  );
+  UI.addLogMessage(
+    `Final stats: Survived ${gameState.currentRound} rooms, scored ${gameState.score} points, health remaining: ${gameState.playerHealth}/${gameState.maxHealth}`
+  );
+  
+  // Show additional victory details
+  const weaponInfo = gameState.currentWeapon 
+    ? `Armed with ${gameState.currentWeapon.rank} of ${gameState.currentWeapon.suit}`
+    : "Completed unarmed";
+  const monstersDefeated = gameState.weaponStack.length;
+  
+  UI.addLogMessage(
+    `${weaponInfo}. Monsters defeated with current weapon: ${monstersDefeated}.`
+  );
+  
   UI.updateButtonStates(gameState);
 
   // Disable draggable cards
@@ -326,6 +363,15 @@ export function equipItem(card, type, cardIndex) {
     // Increment cards played counter
     gameState.cardsPlayedThisRoom++;
     UI.updateCardsPlayedDisplay(gameState.cardsPlayedThisRoom);
+    
+    // Check for victory after equipping
+    if (checkVictoryCondition()) {
+      // Update UI first
+      UI.renderEquipment(card, type);
+      UI.addLogMessage(`Equipped ${card.rank} of ${card.suit} as ${type}.`);
+      gameWin();
+      return true;
+    }
   }
 
   // Update UI
@@ -395,6 +441,12 @@ export function processCardEffects(card, cardIndex) {
     gameState.cardsPlayedThisRoom++;
     UI.updateCardsPlayedDisplay(gameState.cardsPlayedThisRoom);
     UI.updateButtonStates(gameState);
+    
+    // Check for victory after playing a card
+    if (checkVictoryCondition()) {
+      gameWin();
+      return;
+    }
   }
 
   gameState.lastActionWasSkip = false; // Reset skip flag on any card play
@@ -502,6 +554,19 @@ export function getCardsPlayedThisRoom() {
 }
 
 /**
+ * Check if the player has won by exhausting the dungeon deck
+ * @returns {boolean} Whether the game should end in victory
+ */
+function checkVictoryCondition() {
+  // Calculate cards needed for next room
+  const cardsNeededForNextRoom = gameState.carryOverCard ? 3 : 4;
+  const availableCards = gameState.deck.length + gameState.discardPile.length;
+  
+  // Victory condition: not enough cards to form a new room AND played exactly 3 cards this room
+  return gameState.cardsPlayedThisRoom === 3 && availableCards < cardsNeededForNextRoom;
+}
+
+/**
  * Fight a monster bare-handed (ignoring equipped weapon)
  * @param {Object} monster - Monster card to fight
  * @param {number} cardIndex - Index of the card in roomCards array
@@ -527,6 +592,12 @@ export function fightBareHanded(monster, cardIndex) {
     gameState.cardsPlayedThisRoom++;
     UI.updateCardsPlayedDisplay(gameState.cardsPlayedThisRoom);
     UI.updateButtonStates(gameState);
+    
+    // Check for victory after bare-handed combat
+    if (checkVictoryCondition()) {
+      gameWin();
+      return combatResult;
+    }
   }
   
   return combatResult;

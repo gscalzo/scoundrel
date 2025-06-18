@@ -36,8 +36,8 @@
 - [x] Update health counter after each combat and potion use. (DONE)
 - [x] End game if health reaches 0 or lower. (DONE)
 
-## [ ] 8. Endgame Conditions
-- [ ] Implement win condition (dungeon deck fully used up). <!-- NOT DONE: Game ends if deck is empty, but not as a win. -->
+## [x] 8. Endgame Conditions
+- [x] Implement win condition (dungeon deck fully used up). (DONE in js/game.js: gameWin function, checkVictoryCondition, and victory checks after card plays)
 - [x] Implement lose condition (health reaches 0 or lower at any time). (DONE)
 
 ## [~] 9. User Interface (if applicable)
