@@ -18,8 +18,8 @@
 ## [x] 4. Room Cycle Logic
 - [x] Implement the option to skip a room (collect all 4 cards, place under dungeon, deal new 4). (DONE in js/game.js: skipRoom)
 - [x] Enforce the rule: may not skip twice in a row. (DONE in js/game.js: gameState.lastActionWasSkip)
-- [ ] Implement logic to play any 3 of the 4 cards, resolving each fully. <!-- NOT DONE: Current logic does not enforce this rule. -->
-- [ ] Carry over the unused 4th card and deal 3 new cards to form the next room. <!-- NOT DONE: No logic for carrying over a card. -->
+- [x] Implement logic to play any 3 of the 4 cards, resolving each fully. (DONE in js/game.js: processCardEffects and equipItem enforce 3-card limit)
+- [x] Carry over the unused 4th card and deal 3 new cards to form the next room. (DONE in js/game.js: carryOverCard state and nextRoom/dealRoomCards logic)
 
 ## [ ] 5. Combat System
 - [ ] Implement combat without a weapon (take damage equal to monster's value, discard monster). <!-- PARTIALLY DONE: Combat exists, but not as per Scoundrel rules. -->

@@ -31,6 +31,7 @@ Central game state is maintained in `game.js` as an exported object containing:
 - Player health, equipment, deck, room cards, discard pile
 - Game progression tracking (rounds, score, active status)
 - Scoundrel-specific state (weapon stack, cards played counter, skip tracking)
+- **Room cycle state**: `cardsPlayedThisRoom` counter and `carryOverCard` for 3-of-4 rule
 
 ### Card System
 Cards are objects with properties: `id`, `suit`, `rank`, `value`, `imagePath`
@@ -48,9 +49,11 @@ Cards are objects with properties: `id`, `suit`, `rank`, `value`, `imagePath`
 The game implements a card-based dungeon crawler with specific mechanics:
 - Trimmed deck (no red face cards/aces) as per rules.md
 - Room-based gameplay with 4-card layouts
+- **3-of-4 card rule**: Players must play exactly 3 cards per room before advancing
+- **Card carry-over system**: The 4th unplayed card carries to the next room
 - Equipment system (weapons from clubs, armor from spades)
 - Combat system with weapon/armor damage modification
-- Skip room functionality (cannot skip twice in a row)
+- Skip room functionality (cannot skip twice in a row, only when no cards played)
 - Health tracking with game over at 0 HP
 
 ### Development Notes
@@ -62,8 +65,13 @@ The game implements a card-based dungeon crawler with specific mechanics:
 
 ### Known Incomplete Features
 According to plan.md, several Scoundrel rules are not fully implemented:
-- Proper 3-of-4 card play enforcement per room
-- Carrying over unused 4th card to next room
 - First-potion-only healing rule per turn
 - Defeated monster stacking under weapons with "strictly weaker" rule
+- Proper combat system following Scoundrel rules (damage calculation, weapon vs monster logic)
 - Win condition when deck is fully used
+- Bare-handed combat option when weapon is equipped
+
+### Recently Completed Features
+- ✅ 3-of-4 card play enforcement per room
+- ✅ Carrying over unused 4th card to next room
+- ✅ UI feedback for cards played counter and room progression

@@ -21,6 +21,7 @@ export const gameState = {
   lastActionWasSkip: false,
   weaponStack: [], // Stack of defeated monsters under the weapon
   cardsPlayedThisRoom: 0, // Track how many cards have been played in the current room
+  carryOverCard: null, // Card carried over from previous room
 };
 
 /**
@@ -36,6 +37,7 @@ export function startNewGame() {
   gameState.currentRound = 0;
   gameState.score = 0;
   gameState.discardPile = [];
+  gameState.carryOverCard = null;
 
   // Create and shuffle a new deck
   const newDeck = Deck.createDeck();
@@ -58,6 +60,7 @@ export function startNewGame() {
 
   // Add game start message
   UI.addLogMessage("Game started! Deal with the cards in front of you.");
+  UI.updateCardsPlayedDisplay(gameState.cardsPlayedThisRoom);
 
   return gameState;
 }
@@ -67,7 +70,10 @@ export function startNewGame() {
  * @returns {Array} The cards dealt for the room
  */
 export function dealRoomCards() {
-  if (gameState.deck.length < 4) {
+  // Calculate how many new cards we need to deal
+  const newCardsNeeded = gameState.carryOverCard ? 3 : 4;
+  
+  if (gameState.deck.length < newCardsNeeded) {
     // Not enough cards, game over or reshuffle discard pile
     if (gameState.discardPile.length > 0) {
       // Shuffle discard pile back into deck
@@ -85,10 +91,19 @@ export function dealRoomCards() {
     }
   }
 
-  // Deal 4 cards to the room
-  const result = Deck.dealCards(gameState.deck, 4);
-  gameState.roomCards = result.dealtCards;
+  // Deal new cards to the room
+  const result = Deck.dealCards(gameState.deck, newCardsNeeded);
+  let newRoomCards = result.dealtCards;
   gameState.deck = result.remainingDeck;
+  
+  // Add carry-over card if it exists
+  if (gameState.carryOverCard) {
+    newRoomCards.unshift(gameState.carryOverCard); // Add at the beginning
+    UI.addLogMessage(`Carried over ${gameState.carryOverCard.rank} of ${gameState.carryOverCard.suit} from previous room.`);
+    gameState.carryOverCard = null;
+  }
+  
+  gameState.roomCards = newRoomCards;
 
   // Update deck count in UI
   UI.updateDeckCount(gameState.deck.length);
@@ -97,6 +112,8 @@ export function dealRoomCards() {
   UI.displayRoomCards(gameState.roomCards);
   // Reset cards played counter
   gameState.cardsPlayedThisRoom = 0;
+  UI.updateCardsPlayedDisplay(gameState.cardsPlayedThisRoom);
+  UI.updateButtonStates(gameState);
   return gameState.roomCards;
 }
 
@@ -112,16 +129,29 @@ export function nextRoom() {
     return;
   }
 
-  // Discard current room cards if any
-  if (gameState.roomCards.length > 0) {
-    gameState.discardPile.push(...gameState.roomCards);
-    gameState.roomCards = [];
+  // Check if exactly 3 cards have been played (Scoundrel rule)
+  if (gameState.cardsPlayedThisRoom !== 3) {
+    UI.addLogMessage(`You must play exactly 3 cards before moving to the next room. (Played: ${gameState.cardsPlayedThisRoom}/3)`);
+    return;
   }
+
+  // Store the remaining unplayed card as carry-over
+  if (gameState.roomCards.length === 1) {
+    gameState.carryOverCard = gameState.roomCards[0];
+    UI.addLogMessage(`Carrying over ${gameState.carryOverCard.rank} of ${gameState.carryOverCard.suit} to the next room.`);
+  } else if (gameState.roomCards.length > 1) {
+    // This shouldn't happen if we enforce the 3-card rule correctly
+    console.warn("More than 1 card remaining after playing 3 cards. This shouldn't happen.");
+    gameState.discardPile.push(...gameState.roomCards);
+  }
+
+  // Clear current room cards
+  gameState.roomCards = [];
 
   // Increment round counter
   gameState.currentRound++;
 
-  // Deal new room cards
+  // Deal new room cards (which will include the carry-over)
   dealRoomCards();
 
   // Reset skip flag
@@ -129,6 +159,7 @@ export function nextRoom() {
 
   // Update UI
   UI.addLogMessage(`Entered room ${gameState.currentRound}. Be careful!`);
+  UI.updateButtonStates(gameState);
 
   return gameState.roomCards;
 }
@@ -149,6 +180,7 @@ export function resetGame() {
   gameState.currentRound = 0;
   gameState.gameActive = false;
   gameState.score = 0;
+  gameState.carryOverCard = null;
 
   // Clear UI
   UI.updateHealthDisplay(gameState.playerHealth, gameState.maxHealth);
@@ -239,6 +271,12 @@ export function equipItem(card, type, cardIndex) {
     return false;
   }
 
+  // Check if we've already played 3 cards in this room
+  if (gameState.cardsPlayedThisRoom >= 3) {
+    UI.addLogMessage("You have already played 3 cards in this room. Use 'Next Room' to continue.");
+    return false;
+  }
+
   // Validate card can be equipped as the specified type
   let isValid = false;
 
@@ -284,11 +322,15 @@ export function equipItem(card, type, cardIndex) {
   ) {
     gameState.roomCards.splice(cardIndex, 1);
     UI.displayRoomCards(gameState.roomCards);
+    // Increment cards played counter
+    gameState.cardsPlayedThisRoom++;
+    UI.updateCardsPlayedDisplay(gameState.cardsPlayedThisRoom);
   }
 
   // Update UI
   UI.renderEquipment(card, type);
   UI.addLogMessage(`Equipped ${card.rank} of ${card.suit} as ${type}.`);
+  UI.updateButtonStates(gameState);
 
   return true;
 }
@@ -303,6 +345,12 @@ export function processCardEffects(card, cardIndex) {
 
   if (!gameState.gameActive) {
     UI.addLogMessage("Cannot process card effects when game is not active.");
+    return;
+  }
+
+  // Check if we've already played 3 cards in this room
+  if (gameState.cardsPlayedThisRoom >= 3) {
+    UI.addLogMessage("You have already played 3 cards in this room. Use 'Next Room' to continue.");
     return;
   }
 
@@ -339,6 +387,7 @@ export function processCardEffects(card, cardIndex) {
     // Increment cards played counter
     gameState.cardsPlayedThisRoom++;
     UI.updateCardsPlayedDisplay(gameState.cardsPlayedThisRoom);
+    UI.updateButtonStates(gameState);
   }
 
   gameState.lastActionWasSkip = false; // Reset skip flag on any card play

@@ -271,15 +271,20 @@ export function updateButtonStates(gameState) {
   const startBtn = document.getElementById("start-game-btn");
   const nextRoomBtn = document.getElementById("next-room-btn");
   const skipRoomBtn = document.getElementById("skip-room-btn");
+  
   startBtn.disabled = gameState.gameActive;
-  nextRoomBtn.disabled = !gameState.gameActive;
-  // Enable skip if game is active, last action was not skip, and 4 cards in room
+  
+  // Enable Next Room only when exactly 3 cards have been played
+  nextRoomBtn.disabled = !(gameState.gameActive && gameState.cardsPlayedThisRoom === 3);
+  
+  // Enable skip if game is active, last action was not skip, 4 cards in room, and no cards played yet
   if (skipRoomBtn) {
     skipRoomBtn.disabled = !(
       gameState.gameActive &&
       !gameState.lastActionWasSkip &&
       gameState.roomCards &&
-      gameState.roomCards.length === 4
+      gameState.roomCards.length === 4 &&
+      gameState.cardsPlayedThisRoom === 0
     );
   }
 }
@@ -294,5 +299,12 @@ export function updateCardsPlayedDisplay(count) {
     display.className = "cards-played-display";
     roomCardsSection.insertBefore(display, roomCardsSection.firstChild);
   }
-  display.textContent = `Cards played: ${count}/3`;
+  
+  if (count === 3) {
+    display.textContent = `Cards played: ${count}/3 - Ready for next room!`;
+    display.style.color = "#27ae60"; // Green when ready
+  } else {
+    display.textContent = `Cards played: ${count}/3`;
+    display.style.color = "#2c3e50"; // Default color
+  }
 }
