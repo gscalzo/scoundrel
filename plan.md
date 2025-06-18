@@ -40,10 +40,10 @@
 - [x] Implement win condition (dungeon deck fully used up). (DONE in js/game.js: gameWin function, checkVictoryCondition, and victory checks after card plays)
 - [x] Implement lose condition (health reaches 0 or lower at any time). (DONE)
 
-## [~] 9. User Interface (if applicable)
-- [~] Display current room, health, equipped weapon, and defeated monsters. <!-- PARTIALLY DONE: Defeated monsters under weapon not shown. -->
-- [~] Show available actions (play, skip, equip, drink, etc.). <!-- PARTIALLY DONE: Skip not present. -->
-- [ ] Provide feedback for invalid actions (e.g., skipping twice in a row). <!-- NOT DONE: No skip logic, so no feedback. -->
+## [x] 9. User Interface (if applicable)
+- [x] Display current room, health, equipped weapon, and defeated monsters. (DONE: All elements display correctly, defeated monsters show under weapons)
+- [x] Show available actions (play, skip, equip, drink, etc.). (DONE: All buttons and interactions available with proper state management)
+- [x] Provide feedback for invalid actions (e.g., skipping twice in a row). (DONE in js/game.js, js/ui.js, js/dragDrop.js: Toast notifications and enhanced log messages for all invalid actions)
 
 ## [ ] 10. Testing & Validation
 - [ ] Write unit tests for deck creation, shuffling, and trimming. <!-- NOT DONE: No tests found. -->

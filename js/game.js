@@ -135,6 +135,7 @@ export function nextRoom() {
   // Check if exactly 3 cards have been played (Scoundrel rule)
   if (gameState.cardsPlayedThisRoom !== 3) {
     UI.addLogMessage(`You must play exactly 3 cards before moving to the next room. (Played: ${gameState.cardsPlayedThisRoom}/3)`);
+    UI.showToast(`Must play exactly 3 cards! (${gameState.cardsPlayedThisRoom}/3)`, "warning");
     return;
   }
 
@@ -314,6 +315,7 @@ export function equipItem(card, type, cardIndex) {
   // Check if we've already played 3 cards in this room
   if (gameState.cardsPlayedThisRoom >= 3) {
     UI.addLogMessage("You have already played 3 cards in this room. Use 'Next Room' to continue.");
+    UI.showToast("Already played 3 cards! Click Next Room.", "warning");
     return false;
   }
 
@@ -332,6 +334,7 @@ export function equipItem(card, type, cardIndex) {
 
   if (!isValid) {
     UI.addLogMessage(`Cannot equip ${card.rank} of ${card.suit} as ${type}!`);
+    UI.showToast(`${card.suit === 'diamonds' ? 'Diamonds are weapons!' : card.suit === 'hearts' ? 'Hearts are potions!' : 'Only diamonds can be weapons!'}`, "error");
     return false;
   }
 
@@ -398,6 +401,7 @@ export function processCardEffects(card, cardIndex) {
   // Check if we've already played 3 cards in this room
   if (gameState.cardsPlayedThisRoom >= 3) {
     UI.addLogMessage("You have already played 3 cards in this room. Use 'Next Room' to continue.");
+    UI.showToast("Already played 3 cards! Click Next Room.", "warning");
     return;
   }
 
@@ -522,16 +526,24 @@ function handleSpadesCard(card, cardIndex) {
 export function skipRoom() {
   if (!gameState.gameActive) {
     UI.addLogMessage("Game is not active. Press Start Game to begin.");
+    UI.showToast("Game not active!", "warning");
     return;
   }
   if (gameState.lastActionWasSkip) {
     UI.addLogMessage("You cannot skip two rooms in a row!");
+    UI.showToast("Cannot skip twice in a row!", "error");
     return;
   }
   if (gameState.roomCards.length !== 4) {
     UI.addLogMessage(
       "You can only skip when there are exactly 4 cards in the room."
     );
+    UI.showToast("Need exactly 4 cards to skip!", "warning");
+    return;
+  }
+  if (gameState.cardsPlayedThisRoom > 0) {
+    UI.addLogMessage("You cannot skip after playing cards in this room.");
+    UI.showToast("Cannot skip after playing cards!", "error");
     return;
   }
   // Place all 4 cards under the deck
@@ -644,7 +656,9 @@ function handleCombat(monster, useBareHands = false) {
       UI.renderEquipment(gameState.currentWeapon, "weapon"); // Update weapon display with stack
     } else {
       // Cannot use weapon due to "strictly weaker" rule
-      UI.addLogMessage(`Cannot attack ${monster.rank} of ${monster.suit} with current weapon - must be strictly weaker than last defeated monster (${gameState.weaponStack[gameState.weaponStack.length - 1].rank}).`);
+      const lastMonster = gameState.weaponStack[gameState.weaponStack.length - 1];
+      UI.addLogMessage(`Cannot attack ${monster.rank} of ${monster.suit} with current weapon - must be strictly weaker than last defeated monster (${lastMonster.rank}).`);
+      UI.showToast(`Monster too strong for weapon! (${monster.value} vs ${lastMonster.value})`, "error");
       return false; // Combat failed
     }
   } else {

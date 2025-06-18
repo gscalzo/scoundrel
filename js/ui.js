@@ -374,3 +374,99 @@ export function hideVictoryStatus() {
     banner.style.display = "none";
   }
 }
+
+/**
+ * Show a temporary toast notification for invalid actions
+ * @param {string} message - Message to display
+ * @param {string} type - Type of notification: 'error', 'warning', 'info'
+ */
+export function showToast(message, type = 'error') {
+  // Create toast container if it doesn't exist
+  let toastContainer = document.getElementById("toast-container");
+  if (!toastContainer) {
+    toastContainer = document.createElement("div");
+    toastContainer.id = "toast-container";
+    toastContainer.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      max-width: 300px;
+    `;
+    document.body.appendChild(toastContainer);
+  }
+  
+  // Create toast element
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+  toast.style.cssText = `
+    background: ${type === 'error' ? '#e74c3c' : type === 'warning' ? '#f39c12' : '#3498db'};
+    color: white;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    font-weight: bold;
+    transform: translateX(320px);
+    transition: transform 0.3s ease;
+    cursor: pointer;
+  `;
+  toast.textContent = message;
+  
+  // Add click to dismiss
+  toast.addEventListener('click', () => {
+    removeToast(toast);
+  });
+  
+  // Add to container
+  toastContainer.appendChild(toast);
+  
+  // Slide in
+  setTimeout(() => {
+    toast.style.transform = 'translateX(0)';
+  }, 10);
+  
+  // Auto-remove after 4 seconds
+  setTimeout(() => {
+    removeToast(toast);
+  }, 4000);
+}
+
+/**
+ * Remove a toast notification
+ * @param {HTMLElement} toast - Toast element to remove
+ */
+function removeToast(toast) {
+  if (toast && toast.parentNode) {
+    toast.style.transform = 'translateX(320px)';
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.parentNode.removeChild(toast);
+      }
+    }, 300);
+  }
+}
+
+/**
+ * Update visual state of room cards based on game state
+ * @param {Object} gameState - Current game state
+ */
+export function updateCardInteractability(gameState) {
+  const cardSlots = document.querySelectorAll('.card-slot .card');
+  
+  cardSlots.forEach((cardElement, index) => {
+    if (gameState.cardsPlayedThisRoom >= 3) {
+      // Disable all cards when 3 have been played
+      cardElement.style.opacity = '0.5';
+      cardElement.style.cursor = 'not-allowed';
+      cardElement.setAttribute('draggable', 'false');
+      cardElement.classList.add('disabled');
+    } else {
+      // Enable cards when less than 3 played
+      cardElement.style.opacity = '1';
+      cardElement.style.cursor = 'pointer';
+      cardElement.setAttribute('draggable', 'true');
+      cardElement.classList.remove('disabled');
+    }
+  });
+}

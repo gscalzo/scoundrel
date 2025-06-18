@@ -26,23 +26,23 @@ function setupEquipmentDropZones() {
     const weaponSlot = document.getElementById('weapon-slot');
     const armorSlot = document.getElementById('armor-slot');
     
-    // Make weapon slot a drop target
+    // Make weapon slot a drop target (only diamonds in Scoundrel)
     makeDropTarget(weaponSlot, (cardData) => {
-        if (cardData && cardData.suit === 'clubs') {
+        if (cardData && cardData.suit === 'diamonds') {
             handleEquipmentDrop(cardData, 'weapon');
         } else {
-            UI.addLogMessage('Only clubs (♣) can be equipped as weapons.');
+            UI.addLogMessage('Only diamonds (♦) can be equipped as weapons in Scoundrel.');
+            UI.showToast('Only diamonds are weapons!', 'error');
         }
-    }, ['clubs']);
+    }, ['diamonds']);
     
-    // Make armor slot a drop target
-    makeDropTarget(armorSlot, (cardData) => {
-        if (cardData && cardData.suit === 'spades') {
-            handleEquipmentDrop(cardData, 'armor');
-        } else {
-            UI.addLogMessage('Only spades (♠) can be equipped as armor.');
-        }
-    }, ['spades']);
+    // Note: No armor in Scoundrel rules, but keeping the slot for potential future use
+    if (armorSlot) {
+        makeDropTarget(armorSlot, (cardData) => {
+            UI.addLogMessage('No armor in Scoundrel rules. Only weapons (diamonds) can be equipped.');
+            UI.showToast('No armor in Scoundrel!', 'warning');
+        }, []);
+    }
 }
 
 /**
@@ -142,6 +142,7 @@ export function makeDropTarget(element, onDrop, allowedSuits = []) {
             // Filter by suit if allowed suits are specified
             if (allowedSuits.length > 0 && !allowedSuits.includes(data.suit)) {
                 UI.addLogMessage(`This card cannot be placed here. Only ${allowedSuits.join(', ')} allowed.`);
+                UI.showToast(`Wrong card type! Need ${allowedSuits.join(' or ')}`, 'error');
                 return;
             }
             

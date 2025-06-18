@@ -64,7 +64,9 @@ The game implements a card-based dungeon crawler with specific mechanics:
 - Event handling uses delegation pattern for dynamically created cards
 
 ### Known Incomplete Features
-According to plan.md, most core Scoundrel rules are now implemented. Remaining tasks are primarily UI polish and testing.
+According to plan.md, all core Scoundrel rules are now implemented. Remaining tasks:
+- Unit tests for deck operations and game logic
+- Comprehensive testing of edge cases and rule validation
 
 ### Recently Completed Features
 - ✅ 3-of-4 card play enforcement per room
@@ -78,3 +80,6 @@ According to plan.md, most core Scoundrel rules are now implemented. Remaining t
 - ✅ Visual indicators for potion usage status
 - ✅ Win condition when dungeon deck is fully used up
 - ✅ Victory banner and celebration UI
+- ✅ Enhanced invalid action feedback with toast notifications
+- ✅ Visual card interactability states
+- ✅ Comprehensive error messaging for all game rules
