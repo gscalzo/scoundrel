@@ -11,7 +11,6 @@ export const gameState = {
   playerHealth: 20,
   maxHealth: 20,
   currentWeapon: null,
-  currentArmor: null,
   deck: [],
   roomCards: [],
   discardPile: [],
@@ -33,11 +32,11 @@ export function startNewGame() {
   // Reset game state
   gameState.playerHealth = gameState.maxHealth;
   gameState.currentWeapon = null;
-  gameState.currentArmor = null;
   gameState.currentRound = 0;
   gameState.score = 0;
   gameState.discardPile = [];
   gameState.carryOverCard = null;
+  gameState.weaponStack = [];
 
   // Create and shuffle a new deck
   const newDeck = Deck.createDeck();
@@ -54,7 +53,6 @@ export function startNewGame() {
   // Update UI elements
   UI.updateHealthDisplay(gameState.playerHealth, gameState.maxHealth);
   UI.renderEquipment(null, "weapon");
-  UI.renderEquipment(null, "armor");
   UI.updateDeckCount(gameState.deck.length);
   UI.updateButtonStates(gameState);
 
@@ -173,7 +171,6 @@ export function resetGame() {
   // Reset game state variables
   gameState.playerHealth = gameState.maxHealth;
   gameState.currentWeapon = null;
-  gameState.currentArmor = null;
   gameState.deck = [];
   gameState.roomCards = [];
   gameState.discardPile = [];
@@ -181,11 +178,11 @@ export function resetGame() {
   gameState.gameActive = false;
   gameState.score = 0;
   gameState.carryOverCard = null;
+  gameState.weaponStack = [];
 
   // Clear UI
   UI.updateHealthDisplay(gameState.playerHealth, gameState.maxHealth);
   UI.renderEquipment(null, "weapon");
-  UI.renderEquipment(null, "armor");
   UI.updateDeckCount(0);
   UI.clearRoomCards();
   UI.updateButtonStates(gameState);
@@ -282,15 +279,11 @@ export function equipItem(card, type, cardIndex) {
 
   switch (type) {
     case "weapon":
-      // Clubs can be weapons
-      isValid = card.suit === "clubs";
-      break;
-    case "armor":
-      // Spades can be armor
-      isValid = card.suit === "spades";
+      // Only diamonds can be weapons according to Scoundrel rules
+      isValid = card.suit === "diamonds";
       break;
     default:
-      console.error(`Invalid equipment type: ${type}`);
+      console.error(`Invalid equipment type: ${type}. Only weapons are supported in Scoundrel.`);
       return false;
   }
 
@@ -299,20 +292,22 @@ export function equipItem(card, type, cardIndex) {
     return false;
   }
 
-  // Add current equipment to discard pile if any
+  // Add current weapon to discard pile if any, and clear defeated monsters stack
   if (type === "weapon" && gameState.currentWeapon !== null) {
+    const monstersDiscarded = gameState.weaponStack.length;
     gameState.discardPile.push(gameState.currentWeapon);
+    // Add stacked monsters to discard pile too
+    gameState.discardPile.push(...gameState.weaponStack);
     gameState.weaponStack = []; // Clear defeated monsters stack
-  } else if (type === "armor" && gameState.currentArmor !== null) {
-    gameState.discardPile.push(gameState.currentArmor);
+    if (monstersDiscarded > 0) {
+      UI.addLogMessage(`Discarded previous weapon and ${monstersDiscarded} defeated monsters.`);
+    } else {
+      UI.addLogMessage(`Discarded previous weapon.`);
+    }
   }
 
-  // Set new equipment
-  if (type === "weapon") {
-    gameState.currentWeapon = card;
-  } else {
-    gameState.currentArmor = card;
-  }
+  // Set new weapon
+  gameState.currentWeapon = card;
 
   // Remove equipped card from room cards
   if (
@@ -355,33 +350,39 @@ export function processCardEffects(card, cardIndex) {
   }
 
   // Process effects based on suit
+  let cardWasConsumed = false;
+  
   switch (card.suit) {
     case "hearts":
-      // Hearts are healing
+      // Hearts are healing potions
       handleHeartsCard(card);
+      cardWasConsumed = true;
       break;
 
     case "diamonds":
-      // Diamonds are treasure/points
+      // Diamonds are weapons - just show message, don't consume
       handleDiamondsCard(card);
+      cardWasConsumed = false;
       break;
 
     case "clubs":
-      // Clubs are weapons or monsters depending on context
-      handleClubsCard(card, cardIndex);
+      // Clubs are monsters
+      const clubResult = handleClubsCard(card, cardIndex);
+      cardWasConsumed = clubResult !== false;
       break;
 
     case "spades":
-      // Spades are armor or traps depending on context
-      handleSpadesCard(card, cardIndex);
+      // Spades are monsters
+      const spadeResult = handleSpadesCard(card, cardIndex);
+      cardWasConsumed = spadeResult !== false;
       break;
 
     default:
       console.error("Unknown card suit:", card.suit);
   }
 
-  // Remove the card from room cards if it was used
-  if (cardIndex !== undefined && cardIndex >= 0) {
+  // Remove the card from room cards if it was consumed
+  if (cardWasConsumed && cardIndex !== undefined && cardIndex >= 0) {
     gameState.roomCards.splice(cardIndex, 1);
     UI.displayRoomCards(gameState.roomCards);
     // Increment cards played counter
@@ -417,18 +418,11 @@ function handleHeartsCard(card) {
  * @param {Object} card - Diamond card to process
  */
 function handleDiamondsCard(card) {
-  const treasureValue = card.value;
-
-  // Add to score
-  gameState.score += treasureValue;
-
-  // Add message
+  // Diamonds are weapons in Scoundrel - they should be equipped, not automatically used
   UI.addLogMessage(
-    `Collected ${card.rank} of diamonds worth ${treasureValue} points.`
+    `Found ${card.rank} of diamonds (weapon). Drag to weapon slot to equip.`
   );
-
-  // Add to discard pile
-  gameState.discardPile.push(card);
+  // The card remains in the room for the player to drag to equipment slot
 }
 
 /**
@@ -437,36 +431,10 @@ function handleDiamondsCard(card) {
  * @param {number} cardIndex - Index of the card in roomCards array
  */
 function handleClubsCard(card, cardIndex) {
-  if (["jack", "queen", "king"].includes(card.rank)) {
-    const damage = card.value;
-    let actualDamage = damage;
-    let defeatedWithWeapon = false;
-    if (gameState.currentWeapon) {
-      actualDamage = Math.max(0, damage - gameState.currentWeapon.value);
-      defeatedWithWeapon = true;
-      UI.addLogMessage(
-        `Fought ${card.rank} of clubs with weapon! Damage reduced from ${damage} to ${actualDamage}.`
-      );
-    } else if (gameState.currentArmor) {
-      actualDamage = Math.max(1, damage - gameState.currentArmor.value);
-      UI.addLogMessage(
-        `Encountered ${card.rank} of clubs! Your armor reduced damage from ${damage} to ${actualDamage}.`
-      );
-    } else {
-      UI.addLogMessage(
-        `Encountered ${card.rank} of clubs! Took ${damage} damage with no armor or weapon.`
-      );
-    }
-    updateHealth(-actualDamage);
-    if (defeatedWithWeapon) {
-      gameState.weaponStack.push(card);
-    }
-    gameState.discardPile.push(card);
-  } else {
-    UI.addLogMessage(
-      `Found ${card.rank} of clubs. Drag to weapon slot to equip.`
-    );
-  }
+  // All clubs are monsters according to Scoundrel rules
+  const combatResult = handleCombat(card);
+  
+  return combatResult;
 }
 
 /**
@@ -475,35 +443,10 @@ function handleClubsCard(card, cardIndex) {
  * @param {number} cardIndex - Index of the card in roomCards array
  */
 function handleSpadesCard(card, cardIndex) {
-  // Face cards are traps
-  if (["jack", "queen", "king"].includes(card.rank)) {
-    const damage = Math.floor(card.value / 2); // Traps do less damage than monsters
-
-    // Player takes damage, modified by armor
-    let actualDamage = damage;
-    if (gameState.currentArmor) {
-      actualDamage = Math.max(1, damage - gameState.currentArmor.value);
-      UI.addLogMessage(
-        `Triggered ${card.rank} of spades trap! Your armor reduced damage from ${damage} to ${actualDamage}.`
-      );
-    } else {
-      UI.addLogMessage(
-        `Triggered ${card.rank} of spades trap! Took ${damage} damage with no armor.`
-      );
-    }
-
-    // Apply damage
-    updateHealth(-actualDamage);
-
-    // Add to discard pile
-    gameState.discardPile.push(card);
-  } else {
-    // Number cards can be equipped as armor
-    UI.addLogMessage(
-      `Found ${card.rank} of spades. Drag to armor slot to equip.`
-    );
-    // Equipping is handled by drag and drop
-  }
+  // All spades are monsters according to Scoundrel rules
+  const combatResult = handleCombat(card);
+  
+  return combatResult;
 }
 
 /**
@@ -540,4 +483,98 @@ export function skipRoom() {
 
 export function getCardsPlayedThisRoom() {
   return gameState.cardsPlayedThisRoom;
+}
+
+/**
+ * Fight a monster bare-handed (ignoring equipped weapon)
+ * @param {Object} monster - Monster card to fight
+ * @param {number} cardIndex - Index of the card in roomCards array
+ * @returns {boolean} Whether combat was successful
+ */
+export function fightBareHanded(monster, cardIndex) {
+  if (!gameState.gameActive) {
+    UI.addLogMessage("Cannot fight when game is not active.");
+    return false;
+  }
+
+  // Check if we've already played 3 cards in this room
+  if (gameState.cardsPlayedThisRoom >= 3) {
+    UI.addLogMessage("You have already played 3 cards in this room. Use 'Next Room' to continue.");
+    return false;
+  }
+
+  const combatResult = handleCombat(monster, true); // true = use bare hands
+  
+  if (combatResult && cardIndex !== undefined && cardIndex >= 0) {
+    gameState.roomCards.splice(cardIndex, 1);
+    UI.displayRoomCards(gameState.roomCards);
+    gameState.cardsPlayedThisRoom++;
+    UI.updateCardsPlayedDisplay(gameState.cardsPlayedThisRoom);
+    UI.updateButtonStates(gameState);
+  }
+  
+  return combatResult;
+}
+
+/**
+ * Check if a monster can be attacked by the current weapon based on the "strictly weaker" rule
+ * @param {Object} monster - Monster card to check
+ * @returns {boolean} Whether the monster can be attacked
+ */
+function canAttackMonster(monster) {
+  if (!gameState.currentWeapon || gameState.weaponStack.length === 0) {
+    return true; // First monster or no weapon equipped
+  }
+  
+  const lastDefeatedMonster = gameState.weaponStack[gameState.weaponStack.length - 1];
+  return monster.value < lastDefeatedMonster.value; // Must be strictly weaker
+}
+
+/**
+ * Handle combat with a monster
+ * @param {Object} monster - Monster card
+ * @param {boolean} useBareHands - Whether to fight bare-handed despite having a weapon
+ * @returns {boolean} Whether combat was successful
+ */
+function handleCombat(monster, useBareHands = false) {
+  const monsterValue = monster.value;
+  let actualDamage = monsterValue;
+  let combatMessage = "";
+  let canUseWeapon = false;
+  
+  // Check if weapon can be used
+  if (gameState.currentWeapon && !useBareHands) {
+    canUseWeapon = canAttackMonster(monster);
+    
+    if (canUseWeapon) {
+      actualDamage = Math.max(0, monsterValue - gameState.currentWeapon.value);
+      combatMessage = `Fought ${monster.rank} of ${monster.suit} with ${gameState.currentWeapon.rank} of ${gameState.currentWeapon.suit}! `;
+      combatMessage += `Damage reduced from ${monsterValue} to ${actualDamage}.`;
+      
+      // Add defeated monster to weapon stack
+      gameState.weaponStack.push(monster);
+      UI.addLogMessage(combatMessage);
+      UI.renderEquipment(gameState.currentWeapon, "weapon"); // Update weapon display with stack
+    } else {
+      // Cannot use weapon due to "strictly weaker" rule
+      UI.addLogMessage(`Cannot attack ${monster.rank} of ${monster.suit} with current weapon - must be strictly weaker than last defeated monster (${gameState.weaponStack[gameState.weaponStack.length - 1].rank}).`);
+      return false; // Combat failed
+    }
+  } else {
+    // Bare-handed combat or no weapon
+    if (useBareHands && gameState.currentWeapon) {
+      combatMessage = `Fought ${monster.rank} of ${monster.suit} bare-handed (chose not to use weapon). Took ${actualDamage} damage.`;
+    } else {
+      combatMessage = `Fought ${monster.rank} of ${monster.suit} bare-handed. Took ${actualDamage} damage.`;
+    }
+    UI.addLogMessage(combatMessage);
+  }
+  
+  // Apply damage
+  updateHealth(-actualDamage);
+  
+  // Add monster to discard pile
+  gameState.discardPile.push(monster);
+  
+  return true;
 }

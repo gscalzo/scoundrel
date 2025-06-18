@@ -66,12 +66,13 @@ The game implements a card-based dungeon crawler with specific mechanics:
 ### Known Incomplete Features
 According to plan.md, several Scoundrel rules are not fully implemented:
 - First-potion-only healing rule per turn
-- Defeated monster stacking under weapons with "strictly weaker" rule
-- Proper combat system following Scoundrel rules (damage calculation, weapon vs monster logic)
 - Win condition when deck is fully used
-- Bare-handed combat option when weapon is equipped
 
 ### Recently Completed Features
 - ✅ 3-of-4 card play enforcement per room
 - ✅ Carrying over unused 4th card to next room
 - ✅ UI feedback for cards played counter and room progression
+- ✅ Full Scoundrel combat system with weapon vs bare-handed choices
+- ✅ "Strictly weaker" monster rule for weapon usage
+- ✅ Defeated monster stacking under weapons
+- ✅ Proper card type handling: ♦️ weapons, ♣️♠️ monsters, ♥️ potions

@@ -21,12 +21,12 @@
 - [x] Implement logic to play any 3 of the 4 cards, resolving each fully. (DONE in js/game.js: processCardEffects and equipItem enforce 3-card limit)
 - [x] Carry over the unused 4th card and deal 3 new cards to form the next room. (DONE in js/game.js: carryOverCard state and nextRoom/dealRoomCards logic)
 
-## [ ] 5. Combat System
-- [ ] Implement combat without a weapon (take damage equal to monster's value, discard monster). <!-- PARTIALLY DONE: Combat exists, but not as per Scoundrel rules. -->
-- [ ] Implement weapon equipping and logic (only one weapon at a time, discard old weapon and stacked monsters when equipping new one). <!-- NOT DONE: No stacking of defeated monsters, no discard logic as per rules. -->
-- [ ] Implement combat with a weapon (damage = monster value - weapon value, min 0). <!-- NOT DONE: No weapon vs. monster logic as per Scoundrel. -->
-- [ ] Track defeated monsters under the weapon and enforce the strictly weaker monster rule. <!-- NOT DONE: No stacking or rule enforcement. -->
-- [ ] Allow bare-handed combat even if a weapon is equipped. <!-- NOT DONE: Not present. -->
+## [x] 5. Combat System
+- [x] Implement combat without a weapon (take damage equal to monster's value, discard monster). (DONE in js/game.js: handleCombat function with bare-handed logic)
+- [x] Implement weapon equipping and logic (only one weapon at a time, discard old weapon and stacked monsters when equipping new one). (DONE in js/game.js: equipItem function properly discards old weapon and stack)
+- [x] Implement combat with a weapon (damage = monster value - weapon value, min 0). (DONE in js/game.js: handleCombat function with weapon damage calculation)
+- [x] Track defeated monsters under the weapon and enforce the strictly weaker monster rule. (DONE in js/game.js: weaponStack tracking and canAttackMonster validation)
+- [x] Allow bare-handed combat even if a weapon is equipped. (DONE in js/game.js: fightBareHanded function and js/cardInteraction.js: player choice dialog)
 
 ## [ ] 6. Potion System
 - [ ] Implement logic for drinking potions (first potion heals, others do not in the same turn). <!-- NOT DONE: All hearts heal, no 'first only' logic. -->
