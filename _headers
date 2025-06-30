@@ -1,0 +1,6 @@
+# Headers for proper JavaScript module handling
+/js/*.js
+  Content-Type: application/javascript
+
+/*.js
+  Content-Type: application/javascript

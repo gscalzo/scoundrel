@@ -1,0 +1,29 @@
+# GitHub Pages configuration for Scoundrel Card Game
+# This ensures proper handling of JavaScript modules
+
+# Use GitHub Pages default plugins
+plugins:
+  - jekyll-default-layout
+
+# Exclude unnecessary files from the site
+exclude:
+  - README.md
+  - LICENSE
+  - "*.sh"
+  - plan.md
+  - rules.md
+  - HELP.md
+  - CLAUDE.md
+  - .github/copilot-instructions.md
+
+# Include all necessary files
+include:
+  - _headers
+
+# Configure file processing
+markdown: kramdown
+highlighter: rouge
+
+# Site metadata (optional)
+title: "Scoundrel Card Game"
+description: "A web-based card game built with vanilla JavaScript"
