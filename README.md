@@ -79,6 +79,12 @@ Cards are represented as objects with properties including:
 4. **Equip Items**: Drag cards to equipment slots to equip weapons and armor
 5. **Survive**: Try to last as long as possible!
 
+## 🌐 Live Demo
+
+**Play the game online**: [https://yourusername.github.io/scoundrel](https://yourusername.github.io/scoundrel)
+
+*Replace `yourusername` with your actual GitHub username*
+
 ## 🖥️ Development
 
 ### Prerequisites
@@ -93,6 +99,21 @@ No build tools or dependencies required! Just a modern web browser.
    ```
 
 2. Open `index.html` in your browser.
+
+### GitHub Pages Deployment
+
+This project is configured for automatic deployment to GitHub Pages:
+
+1. **Fork or clone** this repository to your GitHub account
+2. **Enable GitHub Pages** in your repository settings:
+   - Go to Settings → Pages
+   - Source: "GitHub Actions"
+3. **Push to main/master branch** - the site will automatically deploy
+4. **Access your game** at `https://yourusername.github.io/scoundrel`
+
+The deployment happens automatically via GitHub Actions whenever you push changes to the main branch.
+
+📖 **For detailed deployment instructions, troubleshooting, and advanced configuration, see [DEPLOYMENT.md](DEPLOYMENT.md)**
 
 ### Project Structure
 

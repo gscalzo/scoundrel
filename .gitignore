@@ -1,7 +1,7 @@
 # Dependencies
 /node_modules
 
-# Build files
+# Build files (not applicable for this static site)
 /dist
 /build
 
@@ -25,3 +25,14 @@ yarn-error.log*
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# GitHub Pages / Jekyll
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+
+# Keep important files for GitHub Pages
+!.nojekyll
+!_headers
+!manifest.json
