@@ -11,27 +11,25 @@ import { gameState } from "./game.js";
  * @param {number} maxHealth - Maximum health value
  */
 export function updateHealthDisplay(currentHealth, maxHealth) {
-  const healthBar = document.getElementById("health-bar-fill");
   const healthValue = document.getElementById("health-value");
 
-  // Update health bar width
+  // Calculate health percentage for color changes
   const healthPercentage = Math.max(
     0,
     Math.min(100, (currentHealth / maxHealth) * 100)
   );
-  healthBar.style.width = `${healthPercentage}%`;
-
-  // Change color based on health percentage
-  if (healthPercentage < 25) {
-    healthBar.style.backgroundColor = "#c0392b"; // Red when health is low
-  } else if (healthPercentage < 50) {
-    healthBar.style.backgroundColor = "#e67e22"; // Orange when health is moderate
-  } else {
-    healthBar.style.backgroundColor = "#27ae60"; // Green when health is high
-  }
 
   // Update health text
   healthValue.textContent = `${currentHealth}/${maxHealth}`;
+
+  // Change color based on health percentage
+  if (healthPercentage < 25) {
+    healthValue.style.color = "#c0392b"; // Red when health is low
+  } else if (healthPercentage < 50) {
+    healthValue.style.color = "#e67e22"; // Orange when health is moderate
+  } else {
+    healthValue.style.color = "#27ae60"; // Green when health is high
+  }
 }
 
 /**
