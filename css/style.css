@@ -41,53 +41,28 @@ body {
   letter-spacing: 2px;
 }
 
-/* Player Health Section */
-.player-health-section {
+/* Health Area (in top row) */
+.health-area {
   display: flex;
-  justify-content: center;
-  margin-bottom: 30px;
-  padding: 15px;
-  background-color: #34495e;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
-  /* Ensure mobile compatibility */
-  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  min-width: 140px;
 }
 
-/* Health Bar */
-.player-health {
+.health-area h3 {
+  margin-bottom: 15px;
+  font-size: 1.2rem;
   text-align: center;
-  min-width: 250px;
-  width: 100%;
-}
-
-.player-health h2 {
-  margin-bottom: 10px;
-  font-size: 1.3rem;
-}
-
-.health-bar {
-  height: 25px;
-  background-color: #7f8c8d;
-  border-radius: 12px;
-  margin: 10px 0;
-  overflow: hidden;
-}
-
-.health-bar-fill {
-  height: 100%;
-  background-color: #27ae60;
-  width: 100%;
-  transition: width 0.3s ease;
+  color: #ecf0f1;
 }
 
 .health-value {
   text-align: center;
   font-weight: bold;
-  font-size: 1.2rem;
+  font-size: 1.8rem;
+  color: #27ae60;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  transition: color 0.3s ease;
 }
 
 /* Main Game Board - Scoundrel Layout */
@@ -405,6 +380,10 @@ body {
     order: 2;
   }
   
+  .health-area {
+    order: 3;
+  }
+  
   .room-cards {
     order: 1;
     max-width: 100%;
@@ -429,13 +408,12 @@ body {
     padding: 15px;
   }
   
-  .player-health-section {
-    padding: 12px;
-    margin-bottom: 20px;
+  .health-area h3 {
+    font-size: 1.1rem;
   }
   
-  .player-health {
-    min-width: 200px;
+  .health-value {
+    font-size: 1.6rem;
   }
   
   .card-slots {
@@ -562,9 +540,12 @@ body {
     padding: 10px;
   }
   
-  .player-health-section {
-    padding: 10px;
-    margin-bottom: 15px;
+  .health-area h3 {
+    font-size: 1rem;
+  }
+  
+  .health-value {
+    font-size: 1.4rem;
   }
   
   .card-slots {
@@ -627,21 +608,10 @@ body {
   
   .deck-area h3,
   .room-cards h3,
-  .equipment-slot h3 {
+  .equipment-slot h3,
+  .health-area h3 {
     font-size: 1.1rem;
     margin-bottom: 10px;
-  }
-  
-  .player-health h2 {
-    font-size: 1.2rem;
-  }
-  
-  .health-bar {
-    height: 20px;
-  }
-  
-  .health-value {
-    font-size: 1.1rem;
   }
 }
 
@@ -672,8 +642,8 @@ body {
     font-size: 0.8rem;
   }
   
-  .player-health {
-    min-width: 180px;
+  .health-value {
+    font-size: 1.2rem;
   }
   
   .empty-slot-text {
@@ -699,10 +669,6 @@ body {
   .game-header h1 {
     font-size: 1.5rem;
     margin-bottom: 10px;
-  }
-  
-  .player-health-section {
-    margin-bottom: 15px;
   }
   
   .top-game-row {

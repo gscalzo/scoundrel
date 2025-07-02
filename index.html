@@ -31,20 +31,9 @@
         <h1>Scoundrel</h1>
       </header>
 
-      <!-- Player health status -->
-      <section class="player-health-section">
-        <div class="player-health">
-          <h2>Health</h2>
-          <div class="health-bar">
-            <div class="health-bar-fill" id="health-bar-fill"></div>
-          </div>
-          <div class="health-value" id="health-value">20/20</div>
-        </div>
-      </section>
-
       <!-- Main game board area with Scoundrel layout -->
       <section class="game-board">
-        <!-- Top row: Deck pile (left) and Room cards (right) -->
+        <!-- Top row: Deck pile (left), Health (center), and Room cards (right) -->
         <div class="top-game-row">
           <!-- Deck area (top-left) -->
           <div class="deck-area">
@@ -53,6 +42,12 @@
               <img src="card_back.png" alt="Card back" id="deck-card-image" />
             </div>
             <div class="deck-count" id="deck-count">52 cards left</div>
+          </div>
+
+          <!-- Health display (center) -->
+          <div class="health-area">
+            <h3>Health</h3>
+            <div class="health-value" id="health-value">20/20</div>
           </div>
 
           <!-- Room cards area (top-right) -->
