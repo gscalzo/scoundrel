@@ -99,7 +99,7 @@ export function updateDeckCount(count) {
 /**
  * Render equipment in equipment slot
  * @param {Object} equipmentCard - Card object to equip
- * @param {string} slotType - Type of equipment ('weapon' or 'armor')
+ * @param {string} slotType - Type of equipment ('weapon')
  */
 export function renderEquipment(equipmentCard, slotType) {
   const slot = document.getElementById(`${slotType}-slot`);

@@ -298,9 +298,9 @@ function gameWin() {
 }
 
 /**
- * Equip an item (weapon or armor)
+ * Equip an item (weapon)
  * @param {Object} card - Card to equip
- * @param {string} type - Type of equipment ('weapon' or 'armor')
+ * @param {string} type - Type of equipment ('weapon')
  * @param {number} cardIndex - Index of the card in roomCards array
  * @returns {boolean} Whether the operation was successful
  */
@@ -508,7 +508,7 @@ function handleClubsCard(card, cardIndex) {
 }
 
 /**
- * Handle spades card (armor or traps)
+ * Handle spades card (monsters)
  * @param {Object} card - Spades card to process
  * @param {number} cardIndex - Index of the card in roomCards array
  */

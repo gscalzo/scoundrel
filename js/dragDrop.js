@@ -23,8 +23,7 @@ export function initDragAndDrop() {
  * Set up equipment slots as drop targets
  */
 function setupEquipmentDropZones() {
-    const weaponSlot = document.getElementById('weapon-slot');
-    const armorSlot = document.getElementById('armor-slot');
+      const weaponSlot = document.getElementById('weapon-slot');
     
     // Make weapon slot a drop target (only diamonds in Scoundrel)
     makeDropTarget(weaponSlot, (cardData) => {
@@ -36,13 +35,7 @@ function setupEquipmentDropZones() {
         }
     }, ['diamonds']);
     
-    // Note: No armor in Scoundrel rules, but keeping the slot for potential future use
-    if (armorSlot) {
-        makeDropTarget(armorSlot, (cardData) => {
-            UI.addLogMessage('No armor in Scoundrel rules. Only weapons (diamonds) can be equipped.');
-            UI.showToast('No armor in Scoundrel!', 'warning');
-        }, []);
-    }
+
 }
 
 /**
@@ -79,7 +72,7 @@ export function makeDraggable(element, data) {
 /**
  * Handle equipment drop
  * @param {Object} cardData - Data of the dropped card
- * @param {string} equipmentType - Type of equipment ('weapon' or 'armor')
+ * @param {string} equipmentType - Type of equipment ('weapon')
  */
 function handleEquipmentDrop(cardData, equipmentType) {
     console.log(`Card dropped on ${equipmentType} slot:`, cardData);
