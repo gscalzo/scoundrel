@@ -2,14 +2,22 @@
 
 A web-based card game built with vanilla JavaScript, HTML5, and CSS3. Navigate through dangerous rooms, collect weapons and armor, and try to survive as long as possible!
 
+<div align="center">
+
 ![Scoundrel Game](images/game-room-dealt.png)
+
+</div>
 
 ## 📸 Screenshots
 
+<div align="center">
+
 | Initial Screen | Gameplay | Multiple Rooms |
-|----------------|----------|----------------|
+|:---:|:---:|:---:|
 | ![Initial](images/game-initial.png) | ![Gameplay](images/game-with-equipment.png) | ![Multiple Rooms](images/game-multiple-rooms.png) |
 | Game start screen with controls | Cards dealt and equipment slots | Multiple rooms in progress |
+
+</div>
 
 ## 🎮 Game Overview
 
