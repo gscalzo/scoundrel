@@ -138,16 +138,29 @@ tests/
 
 ### GitHub Pages Deployment
 
-This project is configured for automatic deployment to GitHub Pages:
+This project is configured for automatic deployment to GitHub Pages with **mandatory testing**:
 
 1. **Fork or clone** this repository to your GitHub account
 2. **Enable GitHub Pages** in your repository settings:
    - Go to Settings → Pages
    - Source: "GitHub Actions"
-3. **Push to main/master branch** - the site will automatically deploy
-4. **Access your game** at `https://gscalzo.github.io/scoundrel`
+3. **Set up branch protection** (see `.github/branch-protection.md` for details):
+   - Navigate to Settings → Branches
+   - Add protection rule for `main`/`master`
+   - Require status checks: Tests must pass before merging
+4. **Push to main/master branch** - deployment happens automatically **only after tests pass**
+5. **Access your game** at `https://gscalzo.github.io/scoundrel`
 
-The deployment happens automatically via GitHub Actions whenever you push changes to the main branch.
+#### 🔒 Quality Gates
+
+The deployment pipeline includes mandatory quality gates:
+
+- ✅ **All tests must pass** (unit, integration, deployment sanity)
+- ✅ **Security checks** (no sensitive files, code quality validation)
+- ✅ **Performance validation** (game loads correctly)
+- ✅ **Test coverage analysis** (all core modules covered)
+
+**Pull Requests are automatically tested** and cannot be merged unless all checks pass.
 
 📖 **For detailed deployment instructions, troubleshooting, and advanced configuration, see [DEPLOYMENT.md](DEPLOYMENT.md)**
 
@@ -177,6 +190,32 @@ scoundrel/
 - **Achievements**: Track player accomplishments
 - **Sound Effects**: Add audio feedback for actions
 - **Animations**: Enhance visual feedback
+
+## 🤝 Contributing
+
+We welcome contributions! To maintain code quality, all contributions must pass our test suite:
+
+### Pull Request Process
+
+1. **Fork** the repository and create a feature branch
+2. **Make your changes** and add tests if needed
+3. **Run tests locally**: `cd tests && node run-tests.js`
+4. **Submit a Pull Request** to the main branch
+5. **Automated testing** will run on your PR
+6. **All tests must pass** before the PR can be merged
+7. **Code review** from maintainers
+8. **Merge** after approval and passing tests
+
+### Required Checks
+
+Your PR must pass these automated checks:
+
+- 🧪 **Unit Tests**: Core game logic validation
+- 🔗 **Integration Tests**: Module interaction verification  
+- 🛡️ **Security Checks**: Code quality and security validation
+- 📊 **Test Coverage**: Adequate test coverage verification
+
+See `tests/README.md` for detailed testing information.
 
 ## 📄 License
 
