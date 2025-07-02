@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoundrel Card Game - Headless Test Suite</title>
+    <style>
+        body { 
+            font-family: monospace; 
+            margin: 20px; 
+            background: #1e1e1e; 
+            color: #d4d4d4; 
+        }
+        .hidden { 
+            position: absolute; 
+            left: -9999px; 
+            visibility: hidden; 
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Scoundrel Test Suite (Headless)</h1>
+    <div id="test-output"></div>
+    
+    <!-- Hidden DOM elements needed for tests -->
+    <div class="hidden">
+        <button id="start-game-btn">Start Game</button>
+        <button id="next-room-btn">Next Room</button>
+        <button id="reset-game-btn">Reset Game</button>
+        <button id="skip-room-btn">Skip Room</button>
+        <div class="card-slots"></div>
+        <div id="deck-card"></div>
+        <div class="health-display"></div>
+        <div class="deck-count"></div>
+    </div>
+    
+    <!-- Import test framework -->
+    <script src="test-runner.js"></script>
+    
+    <!-- Import game modules directly -->
+    <script type="module">
+        // Import game modules
+        import * as DeckModule from '../js/deck.js';
+        import * as GameModule from '../js/game.js';
+        import * as UIModule from '../js/ui.js';
+        
+        // Make modules globally available
+        window.Deck = DeckModule;
+        window.Game = GameModule;
+        
+        // Mock UI module completely
+        window.UI = {
+            updateHealthDisplay: () => {},
+            renderEquipment: () => {},
+            updateDeckCount: () => {},
+            hideVictoryStatus: () => {},
+            updateButtonStates: () => {},
+            addLogMessage: () => {},
+            updateCardsPlayedDisplay: () => {},
+            updatePotionUsageDisplay: () => {},
+            displayRoomCards: () => {},
+            clearRoomCards: () => {},
+            showToast: () => {},
+            displayVictoryStatus: () => {}
+        };
+        
+        // Test status tracking
+        window.testResults = {
+            passed: 0,
+            failed: 0,
+            errors: []
+        };
+        
+        // Enhanced console for CI output
+        const originalConsole = {
+            log: console.log,
+            error: console.error
+        };
+        
+        console.log = function(...args) {
+            const message = args.join(' ');
+            originalConsole.log(message);
+            
+            if (document.getElementById('test-output')) {
+                document.getElementById('test-output').innerHTML += message + '\n';
+            }
+            
+            // Track test results for CI
+            if (message.includes('✅')) {
+                window.testResults.passed++;
+            } else if (message.includes('❌')) {
+                window.testResults.failed++;
+                window.testResults.errors.push(message);
+            }
+        };
+        
+        console.error = function(...args) {
+            const message = args.join(' ');
+            originalConsole.error(message);
+            console.log('ERROR: ' + message);
+            window.testResults.failed++;
+            window.testResults.errors.push('ERROR: ' + message);
+        };
+        
+        // Load and run tests
+        async function runTests() {
+            try {
+                console.log('🚀 Starting Scoundrel Test Suite...\n');
+                
+                // Reset test runner
+                testRunner.tests = [];
+                testRunner.passed = 0;
+                testRunner.failed = 0;
+                
+                console.log('📊 Available modules:', Object.keys(window).filter(key => 
+                    ['Deck', 'Game', 'UI'].includes(key)
+                ));
+                
+                // Load test modules inline since import might not work
+                await loadTestsInline();
+                
+                // Run tests
+                await testRunner.run();
+                
+                // Final results
+                console.log('\n🏁 Test Suite Complete!');
+                console.log(`✅ Passed: ${testRunner.passed}`);
+                console.log(`❌ Failed: ${testRunner.failed}`);
+                
+                if (testRunner.failed === 0) {
+                    console.log('\n🎉 All tests passed!');
+                    window.testResults.success = true;
+                } else {
+                    console.log('\n💥 Some tests failed!');
+                    window.testResults.success = false;
+                }
+                
+                // Set global result for CI
+                window.CI_TEST_RESULTS = {
+                    success: testRunner.failed === 0,
+                    passed: testRunner.passed,
+                    failed: testRunner.failed,
+                    total: testRunner.passed + testRunner.failed
+                };
+                
+            } catch (error) {
+                console.error('Fatal test error:', error.message);
+                window.CI_TEST_RESULTS = {
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+        
+        async function loadTestsInline() {
+            // Load test files as scripts rather than modules
+            return new Promise((resolve, reject) => {
+                let loadedCount = 0;
+                const totalTests = 3;
+                
+                function onTestLoad() {
+                    loadedCount++;
+                    if (loadedCount === totalTests) {
+                        // All tests loaded, run them
+                        try {
+                            if (typeof testDeckModule === 'function') {
+                                testDeckModule();
+                            }
+                            if (typeof testGameModule === 'function') {
+                                testGameModule();
+                            }
+                            if (typeof testIntegration === 'function') {
+                                testIntegration();
+                            }
+                            if (typeof testDeploymentSanity === 'function') {
+                                testDeploymentSanity();
+                            }
+                            resolve();
+                        } catch (error) {
+                            reject(error);
+                        }
+                    }
+                }
+                
+                // Load deck tests
+                const deckScript = document.createElement('script');
+                deckScript.src = 'unit/deck.test.js';
+                deckScript.onload = onTestLoad;
+                deckScript.onerror = () => reject(new Error('Failed to load deck tests'));
+                document.head.appendChild(deckScript);
+                
+                // Load game tests
+                const gameScript = document.createElement('script');
+                gameScript.src = 'unit/game.test.js';
+                gameScript.onload = onTestLoad;
+                gameScript.onerror = () => reject(new Error('Failed to load game tests'));
+                document.head.appendChild(gameScript);
+                
+                // Load integration tests
+                const integrationScript = document.createElement('script');
+                integrationScript.src = 'integration/integration.test.js';
+                integrationScript.onload = onTestLoad;
+                integrationScript.onerror = () => reject(new Error('Failed to load integration tests'));
+                document.head.appendChild(integrationScript);
+            });
+        }
+        
+        // Auto-run tests after page load
+        window.addEventListener('load', () => {
+            setTimeout(runTests, 100);
+        });
+        
+        // Export test runner for external access
+        window.runHeadlessTests = runTests;
+    </script>
+</body>
+</html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoundrel Card Game - Test Suite</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            margin: 20px;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            line-height: 1.6;
+        }
+        
+        .test-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .test-controls {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .test-controls button {
+            background-color: #0e639c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .test-controls button:hover {
+            background-color: #1177bb;
+        }
+        
+        .test-controls button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        
+        .test-output {
+            background-color: #2d2d2d;
+            border: 1px solid #555;
+            border-radius: 5px;
+            padding: 15px;
+            height: 600px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+        
+        .hidden-game {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+            visibility: hidden;
+        }
+        
+        .test-info {
+            background-color: #2d2d2d;
+            border-left: 4px solid #0e639c;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .status {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        
+        .status.running {
+            color: #ffa500;
+        }
+        
+        .status.passed {
+            color: #28a745;
+        }
+        
+        .status.failed {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-header">
+        <h1>🧪 Scoundrel Card Game Test Suite</h1>
+        <p>Unit Tests, Integration Tests & Deployment Sanity Checks</p>
+    </div>
+    
+    <div class="test-info">
+        <h3>📋 Test Information</h3>
+        <p><strong>Purpose:</strong> Verify the main game logic and deployment readiness</p>
+        <p><strong>Coverage:</strong> Deck operations, Game state management, Card effects, Equipment system, UI integration</p>
+        <p><strong>Test Types:</strong> Unit tests for individual modules, Integration tests for game flow, Deployment sanity checks</p>
+    </div>
+    
+    <div class="test-controls">
+        <button id="run-all-tests">🚀 Run All Tests</button>
+        <button id="run-unit-tests">⚙️ Unit Tests Only</button>
+        <button id="run-integration-tests">🔗 Integration Tests Only</button>
+        <button id="clear-output">🗑️ Clear Output</button>
+        <div class="status" id="test-status">Ready to run tests</div>
+    </div>
+    
+    <div class="test-output" id="test-output">
+Welcome to the Scoundrel Card Game Test Suite!
+
+This test suite includes:
+• Unit tests for Deck module (card creation, shuffling, dealing)
+• Unit tests for Game module (state management, health, equipment)
+• Integration tests (module interactions, game flow)
+• Deployment sanity tests (DOM elements, event handlers, CSS)
+
+Click "Run All Tests" to begin testing...
+    </div>
+    
+    <!-- Hidden game elements for testing -->
+    <div class="hidden-game">
+        <!-- Minimal DOM structure needed for tests -->
+        <button id="start-game-btn">Start Game</button>
+        <button id="next-room-btn">Next Room</button>
+        <button id="reset-game-btn">Reset Game</button>
+        <button id="skip-room-btn">Skip Room</button>
+        <div class="card-slots"></div>
+        <div id="deck-card"></div>
+        <div class="health-display"></div>
+        <div class="deck-count"></div>
+    </div>
+    
+    <!-- Import test framework -->
+    <script src="test-runner.js"></script>
+    
+    <!-- Import game modules -->
+    <script type="module">
+        // Import all game modules
+        import * as DeckModule from '../js/deck.js';
+        import * as GameModule from '../js/game.js';
+        import * as UIModule from '../js/ui.js';
+        import * as DragDropModule from '../js/dragDrop.js';
+        import * as CardInteractionModule from '../js/cardInteraction.js';
+        
+        // Make modules available globally for tests
+        window.Deck = DeckModule;
+        window.Game = GameModule;
+        window.UI = UIModule;
+        window.DragDrop = DragDropModule;
+        window.CardInteraction = CardInteractionModule;
+        
+        // Mock UI functions to prevent actual DOM manipulation during tests
+        const originalUI = { ...UIModule };
+        window.UI = {
+            updateHealthDisplay: () => {},
+            renderEquipment: () => {},
+            updateDeckCount: () => {},
+            hideVictoryStatus: () => {},
+            updateButtonStates: () => {},
+            addLogMessage: () => {},
+            updateCardsPlayedDisplay: () => {},
+            updatePotionUsageDisplay: () => {},
+            displayRoomCards: () => {},
+            clearRoomCards: () => {},
+            showToast: () => {},
+            displayVictoryStatus: () => {}
+        };
+        
+        // Inject mocked UI into Game module
+        if (window.Game && window.Game.gameState) {
+            // Game module is available, we can set up the mock
+            console.log('Game module loaded successfully');
+        }
+        
+        // Override console.log to capture test output
+        const testOutput = document.getElementById('test-output');
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        
+        function appendToOutput(message, isError = false) {
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = isError ? '❌' : 'ℹ️';
+            testOutput.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+            testOutput.scrollTop = testOutput.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            appendToOutput(args.join(' '));
+            originalConsoleLog.apply(console, args);
+        };
+        
+        console.error = function(...args) {
+            appendToOutput(args.join(' '), true);
+            originalConsoleError.apply(console, args);
+        };
+        
+        // Set up test controls
+        document.getElementById('run-all-tests').addEventListener('click', runAllTests);
+        document.getElementById('run-unit-tests').addEventListener('click', runUnitTests);
+        document.getElementById('run-integration-tests').addEventListener('click', runIntegrationTests);
+        document.getElementById('clear-output').addEventListener('click', clearOutput);
+        
+        function updateStatus(message, type = '') {
+            const statusElement = document.getElementById('test-status');
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+        }
+        
+        function clearOutput() {
+            testOutput.textContent = 'Output cleared. Ready to run tests...\n';
+        }
+        
+        async function runAllTests() {
+            updateStatus('Running all tests...', 'running');
+            testRunner.tests = []; // Clear any existing tests
+            
+            try {
+                // Load test modules dynamically
+                await loadTestModules();
+                
+                // Run all test suites
+                testDeckModule();
+                testGameModule();
+                testIntegration();
+                testDeploymentSanity();
+                
+                await testRunner.run();
+                
+                if (testRunner.failed === 0) {
+                    updateStatus(`✅ All tests passed! (${testRunner.passed} tests)`, 'passed');
+                } else {
+                    updateStatus(`❌ ${testRunner.failed} test(s) failed out of ${testRunner.passed + testRunner.failed}`, 'failed');
+                }
+            } catch (error) {
+                console.error('Error running tests:', error);
+                updateStatus('❌ Error running tests', 'failed');
+            }
+        }
+        
+        async function runUnitTests() {
+            updateStatus('Running unit tests...', 'running');
+            testRunner.tests = [];
+            
+            try {
+                await loadTestModules();
+                testDeckModule();
+                testGameModule();
+                
+                await testRunner.run();
+                
+                if (testRunner.failed === 0) {
+                    updateStatus(`✅ Unit tests passed! (${testRunner.passed} tests)`, 'passed');
+                } else {
+                    updateStatus(`❌ ${testRunner.failed} unit test(s) failed`, 'failed');
+                }
+            } catch (error) {
+                console.error('Error running unit tests:', error);
+                updateStatus('❌ Error running unit tests', 'failed');
+            }
+        }
+        
+        async function runIntegrationTests() {
+            updateStatus('Running integration tests...', 'running');
+            testRunner.tests = [];
+            
+            try {
+                await loadTestModules();
+                testIntegration();
+                testDeploymentSanity();
+                
+                await testRunner.run();
+                
+                if (testRunner.failed === 0) {
+                    updateStatus(`✅ Integration tests passed! (${testRunner.passed} tests)`, 'passed');
+                } else {
+                    updateStatus(`❌ ${testRunner.failed} integration test(s) failed`, 'failed');
+                }
+            } catch (error) {
+                console.error('Error running integration tests:', error);
+                updateStatus('❌ Error running integration tests', 'failed');
+            }
+        }
+        
+        async function loadTestModules() {
+            // Import test modules
+            try {
+                const deckTestModule = await import('./unit/deck.test.js');
+                const gameTestModule = await import('./unit/game.test.js');
+                const integrationTestModule = await import('./integration/integration.test.js');
+                
+                // Make test functions available globally
+                window.testDeckModule = deckTestModule.testDeckModule || window.testDeckModule;
+                window.testGameModule = gameTestModule.testGameModule || window.testGameModule;
+                window.testIntegration = integrationTestModule.testIntegration || window.testIntegration;
+                window.testDeploymentSanity = integrationTestModule.testDeploymentSanity || window.testDeploymentSanity;
+                
+                console.log('Test modules loaded successfully');
+            } catch (error) {
+                console.error('Error loading test modules:', error);
+                
+                // Fallback: load from script tags if modules don't work
+                if (typeof testDeckModule === 'undefined') {
+                    console.log('Using fallback test loading...');
+                }
+            }
+        }
+        
+        // Log successful initialization
+        console.log('🎮 Scoundrel Test Suite initialized successfully!');
+        console.log('📊 Available modules:', Object.keys(window).filter(key => 
+            ['Deck', 'Game', 'UI', 'DragDrop', 'CardInteraction'].includes(key)
+        ));
+    </script>
+    
+    <!-- Import test files as fallback -->
+    <script src="unit/deck.test.js"></script>
+    <script src="unit/game.test.js"></script>
+    <script src="integration/integration.test.js"></script>
+</body>
+</html>
