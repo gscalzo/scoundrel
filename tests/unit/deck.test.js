@@ -6,6 +6,7 @@
 // Mock the Deck module for testing - we'll import it in the test HTML
 let Deck;
 
+// Test functions - will be called by the test runner
 function testDeckModule() {
   testRunner.describe('Deck Module', () => {
     
@@ -131,4 +132,14 @@ function testDeckModule() {
       assert.assertTrue(Deck.RANKS.includes('king'), 'RANKS should include king');
     });
   });
+}
+
+// Export for ES6 modules
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { testDeckModule };
+}
+
+// Make available globally for script tag loading
+if (typeof window !== 'undefined') {
+  window.testDeckModule = testDeckModule;
 }

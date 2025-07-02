@@ -104,27 +104,23 @@ async function runHeadlessTests() {
       }
     });
     
-    // Navigate to test page
-    await page.goto(`http://localhost:${port}/tests/test.html`);
+    // Navigate to headless test page
+    await page.goto(`http://localhost:${port}/tests/headless-test.html`);
     
-    // Wait for the page to load and click run tests
-    await page.waitForSelector('#run-all-tests');
-    await page.click('#run-all-tests');
-    
-    // Wait for tests to complete (look for test summary)
+    // Wait for tests to complete automatically
     await page.waitForFunction(() => {
-      const status = document.getElementById('test-status');
-      return status && (status.textContent.includes('All tests passed') || status.textContent.includes('failed'));
+      return window.CI_TEST_RESULTS !== undefined;
     }, { timeout: TEST_TIMEOUT });
     
     // Get final test results
     const testResults = await page.evaluate(() => {
-      const status = document.getElementById('test-status');
-      const output = document.getElementById('test-output');
       return {
-        status: status ? status.textContent : 'Unknown',
-        passed: status && status.textContent.includes('All tests passed'),
-        output: output ? output.textContent : 'No output'
+        status: window.CI_TEST_RESULTS ? 
+          `${window.CI_TEST_RESULTS.passed} passed, ${window.CI_TEST_RESULTS.failed} failed` : 
+          'Unknown',
+        passed: window.CI_TEST_RESULTS && window.CI_TEST_RESULTS.success,
+        output: document.getElementById('test-output') ? document.getElementById('test-output').textContent : 'No output',
+        details: window.CI_TEST_RESULTS
       };
     });
     
@@ -165,11 +161,13 @@ async function runHeadlessTests() {
 function runManualTests() {
   console.log('\n📖 Manual Testing Instructions:');
   console.log('===============================');
-  console.log(`1. Open your browser and navigate to: http://localhost:${port}/tests/test.html`);
-  console.log('2. Click "🚀 Run All Tests" button');
-  console.log('3. Wait for all tests to complete');
-  console.log('4. Verify that all tests pass (green checkmarks)');
-  console.log('5. If any tests fail (red X), review the error messages');
+  console.log(`1. For browser testing: http://localhost:${port}/tests/test.html`);
+  console.log(`2. For headless testing: http://localhost:${port}/tests/headless-test.html`);
+  console.log('3. Browser version: Click "🚀 Run All Tests" button');
+  console.log('4. Headless version: Tests run automatically');
+  console.log('5. Wait for all tests to complete');
+  console.log('6. Verify that all tests pass (green checkmarks)');
+  console.log('7. If any tests fail (red X), review the error messages');
   console.log('\n⚠️  All tests must pass before deployment!');
   
   return new Promise((resolve) => {

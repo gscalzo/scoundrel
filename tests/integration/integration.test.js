@@ -6,6 +6,7 @@
 // Mock modules for testing - we'll import them in the test HTML
 let Game, Deck, UI, DragDrop, CardInteraction;
 
+// Test functions - will be called by the test runner
 function testIntegration() {
   testRunner.describe('Integration Tests', () => {
     
@@ -318,4 +319,15 @@ function testDeploymentSanity() {
       assert.assertTrue(Game.gameState.gameActive, 'Game should be active');
     });
   });
+}
+
+// Export for ES6 modules
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { testIntegration, testDeploymentSanity };
+}
+
+// Make available globally for script tag loading
+if (typeof window !== 'undefined') {
+  window.testIntegration = testIntegration;
+  window.testDeploymentSanity = testDeploymentSanity;
 }

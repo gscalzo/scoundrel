@@ -20,6 +20,7 @@ let mockUI = {
   displayVictoryStatus: () => {}
 };
 
+// Test functions - will be called by the test runner
 function testGameModule() {
   testRunner.describe('Game Module', () => {
     
@@ -248,4 +249,14 @@ function testGameModule() {
       assert.assertEqual(Game.gameState.cardsPlayedThisRoom, 0, 'Should not process when game not active');
     });
   });
+}
+
+// Export for ES6 modules
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { testGameModule };
+}
+
+// Make available globally for script tag loading
+if (typeof window !== 'undefined') {
+  window.testGameModule = testGameModule;
 }

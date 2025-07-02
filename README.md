@@ -106,9 +106,12 @@ This project includes a comprehensive test suite to ensure code quality and depl
 
 #### Running Tests
 
-1. **Open the test suite**: Navigate to `tests/test.html` in your browser
-2. **Run all tests**: Click "🚀 Run All Tests" to execute the complete test suite
-3. **Selective testing**: Use "⚙️ Unit Tests Only" or "🔗 Integration Tests Only" for focused testing
+**Local Development:**
+1. **Browser testing**: Open `tests/test.html` in your browser and click "🚀 Run All Tests"
+2. **Quick verification**: Run `cd tests && node quick-test.js` for fast validation
+3. **Selective testing**: Use "⚙️ Unit Tests Only" or "🔗 Integration Tests Only" buttons
+
+**CI/CD Environment:** Tests run automatically with multiple fallback approaches for reliability
 
 #### Test Coverage
 
