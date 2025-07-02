@@ -1,5 +1,7 @@
 # Dependencies
 /node_modules
+package.json
+package-lock.json
 
 # Build files (not applicable for this static site)
 /dist

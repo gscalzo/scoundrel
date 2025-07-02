@@ -162,19 +162,61 @@ The testing system validates:
 - **Security and code quality** enforced
 - **Cross-browser compatibility** ensured
 
-## 📚 Next Steps
+## � Troubleshooting
+
+### Common CI/CD Issues
+
+#### "Dependencies lock file is not found" Error
+
+**Problem**: GitHub Actions fails with error about missing `package-lock.json`
+
+**Solution**: This was fixed in the workflow configuration. The workflows now create a minimal `package.json` on-the-fly without using npm caching.
+
+**Fixed in**: `.github/workflows/test.yml` - removed `cache: 'npm'` and updated dependency installation
+
+#### Puppeteer Installation Fails
+
+**Problem**: Headless testing fails because Puppeteer can't be installed
+
+**Solution**: 
+1. Check that Node.js version is 18.x or 20.x
+2. Verify the workflow creates package.json correctly
+3. Check GitHub Actions logs for specific npm errors
+
+#### Tests Pass Locally But Fail in CI
+
+**Problem**: Tests work on local machine but fail in GitHub Actions
+
+**Common causes**:
+- Path differences (use relative paths)
+- Missing environment variables
+- Browser/headless differences
+- Timing issues in CI environment
+
+**Solution**: Check the Actions logs and compare with local test output
+
+### Verification Script
+
+Run this to verify your setup:
+```bash
+cd tests && node verify-setup.js
+```
+
+## �📚 Next Steps
 
 ### For Repository Owners
 1. **Set up branch protection rules** (see `.github/branch-protection.md`)
 2. **Review and merge this testing setup**
-3. **Verify CI/CD workflows are working**
-4. **Train team on new testing requirements**
+3. **Verify CI/CD workflows are working**: Create a test PR
+4. **Run verification**: `cd tests && node verify-setup.js`
+5. **Train team on new testing requirements**
 
 ### For Contributors
 1. **Read the testing documentation** (`tests/README.md`)
 2. **Run tests locally before submitting PRs**
 3. **Add tests for new features**
 4. **Follow the PR template guidelines**
+5. **Use verification script** to check setup
 
 ---
 

@@ -48,8 +48,12 @@ node run-tests.js --port=8080
 
 To install Puppeteer for headless testing:
 ```bash
+# Create minimal package.json and install Puppeteer
+echo '{"name": "test-deps", "version": "1.0.0"}' > package.json
 npm install puppeteer
 ```
+
+**Note**: This project uses vanilla JavaScript with no build dependencies. The package.json is only created temporarily for testing and is excluded from version control.
 
 ## 📋 Test Categories
 

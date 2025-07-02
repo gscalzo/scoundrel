@@ -23,12 +23,11 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'
         
     - name: 📦 Install dependencies
       run: |
-        # Install Puppeteer for headless testing
-        npm init -y
+        # Create minimal package.json and install Puppeteer for headless testing
+        echo '{"name": "scoundrel-tests", "version": "1.0.0", "description": "Test dependencies"}' > package.json
         npm install puppeteer
         
     - name: 🧪 Run test suite
@@ -63,7 +62,8 @@ jobs:
         
     - name: 📦 Install dependencies
       run: |
-        npm init -y
+        # Create minimal package.json and install Puppeteer for headless testing
+        echo '{"name": "scoundrel-tests", "version": "1.0.0", "description": "Test dependencies"}' > package.json
         npm install puppeteer
         
     - name: 🌐 Start local server
@@ -165,7 +165,8 @@ jobs:
         
     - name: 📦 Install dependencies
       run: |
-        npm init -y
+        # Create minimal package.json and install Puppeteer for headless testing
+        echo '{"name": "scoundrel-tests", "version": "1.0.0", "description": "Test dependencies"}' > package.json
         npm install puppeteer
         
     - name: 📊 Analyze test coverage

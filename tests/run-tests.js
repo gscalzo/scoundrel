@@ -144,8 +144,12 @@ async function runHeadlessTests() {
     }
     
   } catch (error) {
-    if (error.code === 'MODULE_NOT_FOUND') {
-      console.log('❌ Puppeteer not found. Install it with: npm install puppeteer');
+    if (error.code === 'MODULE_NOT_FOUND' || error.message.includes('Cannot find module')) {
+      console.log('❌ Puppeteer not found.');
+      console.log('💡 To install Puppeteer for headless testing:');
+      console.log('   echo \'{"name": "test-deps", "version": "1.0.0"}\' > package.json');
+      console.log('   npm install puppeteer');
+      console.log('');
       console.log('💡 Falling back to manual test instructions...');
       return runManualTests();
     } else {
