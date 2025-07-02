@@ -81,9 +81,7 @@ Cards are represented as objects with properties including:
 
 ## 🌐 Live Demo
 
-**Play the game online**: [https://yourusername.github.io/scoundrel](https://yourusername.github.io/scoundrel)
-
-*Replace `yourusername` with your actual GitHub username*
+**Play the game online**: [https://gscalzo.github.io/scoundrel](https://gscalzo.github.io/scoundrel)
 
 ## 🖥️ Development
 
@@ -95,7 +93,7 @@ No build tools or dependencies required! Just a modern web browser.
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/scoundrel.git
+   git clone https://github.com/gscalzo/scoundrel.git
    ```
 
 2. Open `index.html` in your browser.
@@ -109,7 +107,7 @@ This project is configured for automatic deployment to GitHub Pages:
    - Go to Settings → Pages
    - Source: "GitHub Actions"
 3. **Push to main/master branch** - the site will automatically deploy
-4. **Access your game** at `https://yourusername.github.io/scoundrel`
+4. **Access your game** at `https://gscalzo.github.io/scoundrel`
 
 The deployment happens automatically via GitHub Actions whenever you push changes to the main branch.
 
