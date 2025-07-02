@@ -98,6 +98,44 @@ No build tools or dependencies required! Just a modern web browser.
 
 2. Open `index.html` in your browser.
 
+### 🧪 Testing
+
+**IMPORTANT: Tests must be run before any deployment!**
+
+This project includes a comprehensive test suite to ensure code quality and deployment readiness:
+
+#### Running Tests
+
+1. **Open the test suite**: Navigate to `tests/test.html` in your browser
+2. **Run all tests**: Click "🚀 Run All Tests" to execute the complete test suite
+3. **Selective testing**: Use "⚙️ Unit Tests Only" or "🔗 Integration Tests Only" for focused testing
+
+#### Test Coverage
+
+- **Unit Tests**: Core game logic, deck operations, health system, equipment mechanics
+- **Integration Tests**: Module interactions, complete game flow, state consistency
+- **Deployment Sanity**: DOM elements, event handlers, CSS loading, module imports
+
+#### Test Requirements
+
+- All tests must pass before deployment
+- Unit tests verify individual module functionality
+- Integration tests ensure proper module interaction
+- Deployment tests confirm the game works in production environment
+
+#### Test Structure
+
+```
+tests/
+├── test.html              # Main test runner page
+├── test-runner.js          # Testing framework
+├── unit/
+│   ├── deck.test.js        # Deck module unit tests
+│   └── game.test.js        # Game module unit tests
+└── integration/
+    └── integration.test.js # Integration & deployment tests
+```
+
 ### GitHub Pages Deployment
 
 This project is configured for automatic deployment to GitHub Pages:
