@@ -621,8 +621,12 @@ export function fightBareHanded(monster, cardIndex) {
  * @returns {boolean} Whether the monster can be attacked
  */
 function canAttackMonster(monster) {
-  if (!gameState.currentWeapon || gameState.weaponStack.length === 0) {
-    return true; // First monster or no weapon equipped
+  if (!gameState.currentWeapon) {
+    return true; // No weapon equipped - can fight any monster bare-handed
+  }
+  
+  if (gameState.weaponStack.length === 0) {
+    return true; // First monster with equipped weapon - can fight any monster
   }
   
   const lastDefeatedMonster = gameState.weaponStack[gameState.weaponStack.length - 1];

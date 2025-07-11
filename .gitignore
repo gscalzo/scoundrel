@@ -3,6 +3,11 @@
 package.json
 package-lock.json
 
+# Test dependencies (when Puppeteer is temporarily installed)
+/tests/node_modules
+/tests/package.json
+/tests/package-lock.json
+
 # Build files (not applicable for this static site)
 /dist
 /build

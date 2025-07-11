@@ -14,8 +14,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Browser testing**: Open `tests/test.html` and click "🚀 Run All Tests"
 - **Quick validation**: `cd tests && node quick-test.js`
 - **CI/CD testing**: `cd tests && node run-tests.js` (manual) or `cd tests && node run-tests.js --headless` (automated)
+- **Headless testing**: Requires temporary Puppeteer installation: `echo '{"name": "test-deps", "version": "1.0.0"}' > tests/package.json && cd tests && npm install puppeteer`
 - **All tests must pass before deployment** - this is enforced in the CI/CD pipeline
 - Test structure: Unit tests (`unit/`), Integration tests (`integration/`), and deployment sanity checks
+- **Note**: Node.js dependencies (node_modules, package.json) are temporary and excluded from repository
 
 ## Architecture Overview
 

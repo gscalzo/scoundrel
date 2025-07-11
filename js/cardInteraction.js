@@ -93,8 +93,12 @@ function handleMonsterClick(card, cardIndex) {
  * @returns {boolean} Whether the monster can be attacked
  */
 function canAttackMonster(monster) {
-    if (!Game.gameState.currentWeapon || Game.gameState.weaponStack.length === 0) {
-        return true; // First monster or no weapon equipped
+    if (!Game.gameState.currentWeapon) {
+        return true; // No weapon equipped - can fight any monster bare-handed
+    }
+    
+    if (Game.gameState.weaponStack.length === 0) {
+        return true; // First monster with equipped weapon - can fight any monster
     }
     
     const lastDefeatedMonster = Game.gameState.weaponStack[Game.gameState.weaponStack.length - 1];
