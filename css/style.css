@@ -329,23 +329,89 @@ body {
 
 /* Weapon Stack for Defeated Monsters */
 .weapon-stack-container {
-  display: flex;
-  flex-direction: row;
-  gap: 4px;
-  margin-top: 10px;
-  justify-content: center;
-  flex-wrap: wrap;
-  max-width: 140px;
+  position: relative;
+  width: 120px;
+  height: 170px;
+  margin: 0 auto;
+  margin-top: 5px;
+}
+
+.weapon-base-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  z-index: 1;
+  box-shadow: 0 2px 4px var(--card-shadow);
 }
 
 .weapon-stack-card {
-  width: 28px;
-  height: 40px;
-  object-fit: contain;
-  border: 1px solid #888;
-  border-radius: 4px;
-  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  position: absolute;
+  width: 90%;
+  height: 90%;
+  object-fit: cover;
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
   background: #fff;
+  transition: transform 0.2s ease;
+}
+
+.weapon-stack-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Individual stack positions for up to 5 monsters */
+.weapon-stack-card:nth-child(2) { /* First monster */
+  top: 8px;
+  left: 6px;
+  z-index: 2;
+}
+
+.weapon-stack-card:nth-child(3) { /* Second monster */
+  top: 16px;
+  left: 12px;
+  z-index: 3;
+}
+
+.weapon-stack-card:nth-child(4) { /* Third monster */
+  top: 24px;
+  left: 18px;
+  z-index: 4;
+}
+
+.weapon-stack-card:nth-child(5) { /* Fourth monster */
+  top: 32px;
+  left: 24px;
+  z-index: 5;
+}
+
+.weapon-stack-card:nth-child(6) { /* Fifth monster */
+  top: 40px;
+  left: 30px;
+  z-index: 6;
+}
+
+/* Stack overflow indicator for many monsters */
+.weapon-stack-overflow {
+  position: absolute;
+  top: 48px;
+  left: 36px;
+  width: 70%;
+  height: 70%;
+  background: var(--secondary-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: var(--text-primary);
+  z-index: 7;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
 }
 
 /* Game Controls */
@@ -616,12 +682,20 @@ body {
   }
   
   .weapon-stack-container {
-    max-width: 120px;
+    width: 90px;
+    height: 130px;
   }
   
-  .weapon-stack-card {
-    width: 24px;
-    height: 34px;
+  .weapon-stack-card:nth-child(2) { top: 6px; left: 4px; }
+  .weapon-stack-card:nth-child(3) { top: 12px; left: 8px; }
+  .weapon-stack-card:nth-child(4) { top: 18px; left: 12px; }
+  .weapon-stack-card:nth-child(5) { top: 24px; left: 16px; }
+  .weapon-stack-card:nth-child(6) { top: 30px; left: 20px; }
+  
+  .weapon-stack-overflow {
+    top: 36px;
+    left: 24px;
+    font-size: 0.7rem;
   }
 }
 

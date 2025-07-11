@@ -107,31 +107,45 @@ export function renderEquipment(equipmentCard, slotType) {
   slot.innerHTML = "";
 
   if (equipmentCard) {
-    // Create equipment image
-    const equipImg = document.createElement("img");
-    equipImg.src = equipmentCard.imagePath;
-    equipImg.alt = equipmentCard.id;
-    equipImg.classList.add("equipment");
-
-    // Add to DOM
-    slot.appendChild(equipImg);
-
-    // If weapon, render defeated monsters under the weapon
-    if (
-      slotType === "weapon" &&
-      gameState.weaponStack &&
-      gameState.weaponStack.length > 0
-    ) {
+    // If weapon, create layered stacking container
+    if (slotType === "weapon") {
       const stackContainer = document.createElement("div");
       stackContainer.classList.add("weapon-stack-container");
-      gameState.weaponStack.forEach((monsterCard) => {
-        const monsterImg = document.createElement("img");
-        monsterImg.src = monsterCard.imagePath;
-        monsterImg.alt = monsterCard.id;
-        monsterImg.classList.add("weapon-stack-card");
-        stackContainer.appendChild(monsterImg);
-      });
+      
+      // Create weapon as base layer
+      const weaponImg = document.createElement("img");
+      weaponImg.src = equipmentCard.imagePath;
+      weaponImg.alt = equipmentCard.id;
+      weaponImg.classList.add("weapon-base-card");
+      stackContainer.appendChild(weaponImg);
+      
+      // Add defeated monsters on top with progressive offsets
+      if (gameState.weaponStack && gameState.weaponStack.length > 0) {
+        gameState.weaponStack.forEach((monsterCard) => {
+          const monsterImg = document.createElement("img");
+          monsterImg.src = monsterCard.imagePath;
+          monsterImg.alt = monsterCard.id;
+          monsterImg.classList.add("weapon-stack-card");
+          stackContainer.appendChild(monsterImg);
+        });
+        
+        // Add overflow indicator if more than 5 monsters
+        if (gameState.weaponStack.length > 5) {
+          const overflowIndicator = document.createElement("div");
+          overflowIndicator.classList.add("weapon-stack-overflow");
+          overflowIndicator.textContent = `+${gameState.weaponStack.length - 5}`;
+          stackContainer.appendChild(overflowIndicator);
+        }
+      }
+      
       slot.appendChild(stackContainer);
+    } else {
+      // Non-weapon equipment (armor, etc.)
+      const equipImg = document.createElement("img");
+      equipImg.src = equipmentCard.imagePath;
+      equipImg.alt = equipmentCard.id;
+      equipImg.classList.add("equipment");
+      slot.appendChild(equipImg);
     }
 
     // Update stats
@@ -459,7 +473,7 @@ function removeToast(toast) {
 export function updateCardInteractability(gameState) {
   const cardSlots = document.querySelectorAll('.card-slot .card');
   
-  cardSlots.forEach((cardElement, index) => {
+  cardSlots.forEach((cardElement) => {
     if (gameState.cardsPlayedThisRoom >= 3) {
       // Disable all cards when 3 have been played
       cardElement.style.opacity = '0.5';
