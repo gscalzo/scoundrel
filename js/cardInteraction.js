@@ -74,11 +74,19 @@ function handleMonsterClick(card, cardIndex) {
             }
         } else {
             // Cannot use weapon due to "strictly weaker" rule - offer bare-handed
-            const lastMonster = Game.gameState.weaponStack[Game.gameState.weaponStack.length - 1];
-            const fightBareHanded = confirm(`Cannot use weapon against ${card.rank} of ${card.suit} - must be weaker than last defeated monster (${lastMonster.rank}).\n\nFight bare-handed instead?`);
-            
-            if (fightBareHanded) {
-                Game.fightBareHanded(card, cardIndex);
+            if (Game.gameState.weaponStack.length > 0) {
+                const lastMonster = Game.gameState.weaponStack[Game.gameState.weaponStack.length - 1];
+                const fightBareHanded = confirm(`Cannot use weapon against ${card.rank} of ${card.suit} - must be weaker than last defeated monster (${lastMonster.rank}).\n\nFight bare-handed instead?`);
+                
+                if (fightBareHanded) {
+                    Game.fightBareHanded(card, cardIndex);
+                }
+            } else {
+                const fightBareHanded = confirm(`Cannot use weapon against ${card.rank} of ${card.suit} for unknown reason.\n\nFight bare-handed instead?`);
+                
+                if (fightBareHanded) {
+                    Game.fightBareHanded(card, cardIndex);
+                }
             }
         }
     } else {

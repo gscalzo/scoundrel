@@ -496,11 +496,10 @@ function handleDiamondsCard(card) {
 }
 
 /**
- * Handle clubs card (weapons or enemies)
+ * Handle clubs card (monsters)
  * @param {Object} card - Clubs card to process
- * @param {number} cardIndex - Index of the card in roomCards array
  */
-function handleClubsCard(card, cardIndex) {
+function handleClubsCard(card) {
   // All clubs are monsters according to Scoundrel rules
   const combatResult = handleCombat(card);
   
@@ -510,9 +509,8 @@ function handleClubsCard(card, cardIndex) {
 /**
  * Handle spades card (monsters)
  * @param {Object} card - Spades card to process
- * @param {number} cardIndex - Index of the card in roomCards array
  */
-function handleSpadesCard(card, cardIndex) {
+function handleSpadesCard(card) {
   // All spades are monsters according to Scoundrel rules
   const combatResult = handleCombat(card);
   
@@ -660,9 +658,14 @@ function handleCombat(monster, useBareHands = false) {
       UI.renderEquipment(gameState.currentWeapon, "weapon"); // Update weapon display with stack
     } else {
       // Cannot use weapon due to "strictly weaker" rule
-      const lastMonster = gameState.weaponStack[gameState.weaponStack.length - 1];
-      UI.addLogMessage(`Cannot attack ${monster.rank} of ${monster.suit} with current weapon - must be strictly weaker than last defeated monster (${lastMonster.rank}).`);
-      UI.showToast(`Monster too strong for weapon! (${monster.value} vs ${lastMonster.value})`, "error");
+      if (gameState.weaponStack.length > 0) {
+        const lastMonster = gameState.weaponStack[gameState.weaponStack.length - 1];
+        UI.addLogMessage(`Cannot attack ${monster.rank} of ${monster.suit} with current weapon - must be strictly weaker than last defeated monster (${lastMonster.rank}).`);
+        UI.showToast(`Monster too strong for weapon! (${monster.value} vs ${lastMonster.value})`, "error");
+      } else {
+        UI.addLogMessage(`Cannot use weapon against ${monster.rank} of ${monster.suit} for unknown reason.`);
+        UI.showToast(`Weapon combat issue! Try fighting bare-handed.`, "error");
+      }
       return false; // Combat failed
     }
   } else {
