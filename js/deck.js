@@ -26,7 +26,7 @@ export const RANKS = [
 
 // Mapping of card ranks to their numeric values
 export const CARD_VALUES = {
-  ace: 1,
+  ace: 14,
   2: 2,
   3: 3,
   4: 4,
