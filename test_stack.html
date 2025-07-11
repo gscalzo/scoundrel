@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weapon Stack Test - Scoundrel</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1>Weapon Stack Test</h1>
+        </div>
+        
+        <div class="game-board">
+            <div class="equipment-area">
+                <div class="equipment-slot">
+                    <h3>Weapon</h3>
+                    <div class="equipment-card" id="weapon-slot">
+                        <div class="empty-slot-text">No weapon equipped</div>
+                    </div>
+                    <div class="equipment-stats" id="weapon-stats"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-controls">
+            <button id="test-normal" class="game-btn primary-btn">Test Normal Stack</button>
+            <button id="test-overflow" class="game-btn">Test Overflow Stack</button>
+            <button id="clear-test" class="game-btn">Clear Test</button>
+        </div>
+        
+        <div class="message-log-area">
+            <h2>Test Log</h2>
+            <div class="message-log" id="message-log"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Mock game state for testing
+        const gameState = {
+            currentWeapon: null,
+            weaponStack: []
+        };
+
+        // Import UI module
+        import { renderEquipment, addLogMessage } from './js/ui.js';
+
+        // Test data
+        const testWeapon = {
+            id: "7_of_diamonds",
+            suit: "diamonds",
+            rank: "7",
+            value: 7,
+            imagePath: "images/cards/7_of_diamonds.png"
+        };
+
+        const testMonsters = [
+            {
+                id: "3_of_clubs",
+                suit: "clubs",
+                rank: "3",
+                value: 3,
+                imagePath: "images/cards/3_of_clubs.png"
+            },
+            {
+                id: "5_of_spades",
+                suit: "spades",
+                rank: "5",
+                value: 5,
+                imagePath: "images/cards/5_of_spades.png"
+            },
+            {
+                id: "2_of_clubs",
+                suit: "clubs",
+                rank: "2",
+                value: 2,
+                imagePath: "images/cards/2_of_clubs.png"
+            },
+            {
+                id: "4_of_spades",
+                suit: "spades",
+                rank: "4",
+                value: 4,
+                imagePath: "images/cards/4_of_spades.png"
+            }
+        ];
+
+        // Make gameState available globally for UI module
+        window.gameState = gameState;
+
+        // Test normal stacking
+        document.getElementById('test-normal').addEventListener('click', () => {
+            addLogMessage('🔧 Testing normal weapon stack...');
+            
+            // Set up weapon
+            gameState.currentWeapon = testWeapon;
+            gameState.weaponStack = [];
+            
+            // Render weapon first
+            renderEquipment(testWeapon, 'weapon');
+            addLogMessage('✅ Weapon equipped: ' + testWeapon.id);
+            
+            // Add monsters progressively
+            testMonsters.forEach((monster, index) => {
+                setTimeout(() => {
+                    gameState.weaponStack.push(monster);
+                    renderEquipment(testWeapon, 'weapon');
+                    addLogMessage(`👹 Monster ${index + 1} defeated: ${monster.id}`);
+                    
+                    if (index === testMonsters.length - 1) {
+                        addLogMessage('🎯 Normal stack test complete! Check weapon slot.');
+                    }
+                }, (index + 1) * 800);
+            });
+        });
+
+        // Test overflow stacking
+        document.getElementById('test-overflow').addEventListener('click', () => {
+            addLogMessage('🔧 Testing overflow weapon stack...');
+            
+            // Create 7 monsters for overflow test
+            const overflowMonsters = [];
+            for (let i = 1; i <= 7; i++) {
+                overflowMonsters.push({
+                    id: `${i}_of_clubs`,
+                    suit: "clubs",
+                    rank: `${i}`,
+                    value: i,
+                    imagePath: `images/cards/${i}_of_clubs.png`
+                });
+            }
+            
+            gameState.currentWeapon = testWeapon;
+            gameState.weaponStack = overflowMonsters;
+            
+            renderEquipment(testWeapon, 'weapon');
+            addLogMessage('✅ Overflow test: 7 monsters stacked (should show +2 indicator)');
+        });
+
+        // Clear test
+        document.getElementById('clear-test').addEventListener('click', () => {
+            gameState.currentWeapon = null;
+            gameState.weaponStack = [];
+            renderEquipment(null, 'weapon');
+            addLogMessage('🧹 Test cleared');
+        });
+
+        // Initial message
+        addLogMessage('🎮 Weapon Stack Visualization Test Ready');
+        addLogMessage('Click "Test Normal Stack" to see progressive stacking');
+        addLogMessage('Click "Test Overflow Stack" to see overflow indicator');
+    </script>
+</body>
+</html>
