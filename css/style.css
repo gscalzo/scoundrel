@@ -277,7 +277,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 160px;
+  min-width: 180px;
+  position: relative;
 }
 
 .equipment-slot h3 {
@@ -288,8 +289,8 @@ body {
 }
 
 .equipment-card {
-  width: 120px;
-  height: 170px;
+  width: 150px;
+  height: 210px;
   border-radius: 8px;
   background-color: #34495e;
   margin: 0 auto;
@@ -303,7 +304,7 @@ body {
   min-height: 44px;
   min-width: 44px;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .equipment-card img {
@@ -329,11 +330,13 @@ body {
 
 /* Weapon Stack for Defeated Monsters */
 .weapon-stack-container {
-  position: relative;
-  width: 120px;
-  height: 170px;
-  margin: 0 auto;
-  margin-top: 5px;
+  position: absolute;
+  width: 150px;
+  height: 210px;
+  top: 40px; /* Account for h3 title (1.2rem + 15px margin) */
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none; /* Allow clicks to pass through to weapon below */
 }
 
 .weapon-base-card {
@@ -349,14 +352,15 @@ body {
 
 .weapon-stack-card {
   position: absolute;
-  width: 90%;
-  height: 90%;
+  width: 135px; /* Slightly smaller than container for layering effect */
+  height: 190px;
   object-fit: cover;
   border: 2px solid var(--border-color);
   border-radius: 6px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
   background: #fff;
   transition: transform 0.2s ease;
+  pointer-events: auto; /* Allow interaction with monster cards */
 }
 
 .weapon-stack-card:hover {
@@ -593,8 +597,8 @@ body {
   }
   
   .equipment-card {
-    width: 90px;
-    height: 130px;
+    width: 110px;
+    height: 160px;
   }
 
   .equipment-area {
@@ -661,8 +665,8 @@ body {
   }
   
   .equipment-card {
-    width: 75px;
-    height: 110px;
+    width: 90px;
+    height: 130px;
   }
   
   .empty-slot-text {
@@ -682,8 +686,8 @@ body {
   }
   
   .weapon-stack-container {
-    width: 90px;
-    height: 130px;
+    width: 110px;
+    height: 160px;
   }
   
   .weapon-stack-card:nth-child(2) { top: 6px; left: 4px; }
@@ -736,8 +740,8 @@ body {
   }
   
   .equipment-card {
-    width: 80px;
-    height: 115px;
+    width: 95px;
+    height: 135px;
   }
   
   .game-header h1 {
@@ -795,10 +799,14 @@ body {
   }
   
   .card-slot,
-  .deck-card,
-  .equipment-card {
+  .deck-card {
     width: 70px;
     height: 100px;
+  }
+  
+  .equipment-card {
+    width: 85px;
+    height: 120px;
   }
   
   .game-header h1 {

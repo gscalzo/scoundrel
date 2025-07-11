@@ -107,38 +107,40 @@ export function renderEquipment(equipmentCard, slotType) {
   slot.innerHTML = "";
 
   if (equipmentCard) {
-    // If weapon, create layered stacking container
+    // If weapon, render weapon in equipment card and stack in separate container
     if (slotType === "weapon") {
-      const stackContainer = document.createElement("div");
-      stackContainer.classList.add("weapon-stack-container");
-      
-      // Create weapon as base layer
+      // Create weapon image in equipment card
       const weaponImg = document.createElement("img");
       weaponImg.src = equipmentCard.imagePath;
       weaponImg.alt = equipmentCard.id;
-      weaponImg.classList.add("weapon-base-card");
-      stackContainer.appendChild(weaponImg);
+      weaponImg.classList.add("equipment");
+      slot.appendChild(weaponImg);
       
-      // Add defeated monsters on top with progressive offsets
-      if (gameState.weaponStack && gameState.weaponStack.length > 0) {
-        gameState.weaponStack.forEach((monsterCard) => {
-          const monsterImg = document.createElement("img");
-          monsterImg.src = monsterCard.imagePath;
-          monsterImg.alt = monsterCard.id;
-          monsterImg.classList.add("weapon-stack-card");
-          stackContainer.appendChild(monsterImg);
-        });
+      // Use existing HTML weapon-stack-container for defeated monsters
+      const stackContainer = document.getElementById("weapon-stack");
+      if (stackContainer) {
+        // Clear existing stack content
+        stackContainer.innerHTML = "";
         
-        // Add overflow indicator if more than 5 monsters
-        if (gameState.weaponStack.length > 5) {
-          const overflowIndicator = document.createElement("div");
-          overflowIndicator.classList.add("weapon-stack-overflow");
-          overflowIndicator.textContent = `+${gameState.weaponStack.length - 5}`;
-          stackContainer.appendChild(overflowIndicator);
+        // Add defeated monsters with progressive offsets
+        if (gameState.weaponStack && gameState.weaponStack.length > 0) {
+          gameState.weaponStack.forEach((monsterCard) => {
+            const monsterImg = document.createElement("img");
+            monsterImg.src = monsterCard.imagePath;
+            monsterImg.alt = monsterCard.id;
+            monsterImg.classList.add("weapon-stack-card");
+            stackContainer.appendChild(monsterImg);
+          });
+          
+          // Add overflow indicator if more than 5 monsters
+          if (gameState.weaponStack.length > 5) {
+            const overflowIndicator = document.createElement("div");
+            overflowIndicator.classList.add("weapon-stack-overflow");
+            overflowIndicator.textContent = `+${gameState.weaponStack.length - 5}`;
+            stackContainer.appendChild(overflowIndicator);
+          }
         }
       }
-      
-      slot.appendChild(stackContainer);
     } else {
       // Non-weapon equipment (armor, etc.)
       const equipImg = document.createElement("img");
@@ -156,6 +158,14 @@ export function renderEquipment(equipmentCard, slotType) {
     emptyText.classList.add("empty-slot-text");
     emptyText.textContent = `No ${slotType} equipped`;
     slot.appendChild(emptyText);
+
+    // Clear weapon stack if no weapon equipped
+    if (slotType === "weapon") {
+      const stackContainer = document.getElementById("weapon-stack");
+      if (stackContainer) {
+        stackContainer.innerHTML = "";
+      }
+    }
 
     statsElement.textContent = "";
   }
