@@ -22,13 +22,13 @@ export function updateHealthDisplay(currentHealth, maxHealth) {
   // Update health text
   healthValue.textContent = `${currentHealth}/${maxHealth}`;
 
-  // Change color based on health percentage
+  // Change color based on health percentage using CSS variables
   if (healthPercentage < 25) {
-    healthValue.style.color = "#c0392b"; // Red when health is low
+    healthValue.style.color = "var(--health-low)"; // Red when health is low
   } else if (healthPercentage < 50) {
-    healthValue.style.color = "#e67e22"; // Orange when health is moderate
+    healthValue.style.color = "var(--health-medium)"; // Orange when health is moderate
   } else {
-    healthValue.style.color = "#27ae60"; // Green when health is high
+    healthValue.style.color = "var(--health-high)"; // Green when health is high
   }
 }
 

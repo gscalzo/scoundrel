@@ -8,6 +8,7 @@ import * as Game from "./game.js";
 import * as UI from "./ui.js";
 import * as DragDrop from "./dragDrop.js";
 import * as CardInteraction from "./cardInteraction.js";
+import * as Theme from "./theme.js";
 
 // Initialize the game when the DOM is fully loaded
 document.addEventListener("DOMContentLoaded", () => {
@@ -21,12 +22,18 @@ document.addEventListener("DOMContentLoaded", () => {
   );
   console.log("See README.md for game details and instructions.");
 
+  // Initialize theme system
+  Theme.initTheme();
+
   // Test deck module
   const deck = Deck.createDeck();
   console.log(`Created deck with ${deck.length} cards`);
 
   // Add event listeners
   setupEventListeners();
+
+  // Add theme selector button
+  addThemeSelector();
 
   // Display welcome message
   UI.addLogMessage(
@@ -81,6 +88,19 @@ function setupEventListeners() {
     console.log("Skipping current room...");
     Game.skipRoom();
   });
+}
+
+/**
+ * Add theme selector button to the game controls
+ */
+function addThemeSelector() {
+  const gameControls = document.querySelector('.game-controls');
+  if (gameControls) {
+    const themeButton = Theme.createThemeSelector();
+    themeButton.id = 'theme-btn';
+    themeButton.title = 'Switch theme';
+    gameControls.appendChild(themeButton);
+  }
 }
 
 // We're now using the UI module's addLogMessage function instead of this one
