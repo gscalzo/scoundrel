@@ -729,6 +729,16 @@ body {
   cursor: grabbing;
 }
 
+.non-draggable {
+  cursor: default;
+  transition: none;
+}
+
+.non-draggable:hover {
+  transform: none;
+  box-shadow: none;
+}
+
 .dragging {
   opacity: 0.6;
 }

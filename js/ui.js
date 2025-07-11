@@ -196,33 +196,40 @@ export function displayRoomCards(cardsArray) {
  * @param {number} index - The index of the card in the room cards array
  */
 function setupCardDragEvents(cardElement, cardObject, index) {
-  // Make card draggable
-  cardElement.setAttribute("draggable", "true");
-  cardElement.classList.add("draggable");
+  // Only diamonds are draggable (can be equipped as weapons)
+  if (cardObject.suit === "diamonds") {
+    // Make card draggable
+    cardElement.setAttribute("draggable", "true");
+    cardElement.classList.add("draggable");
 
-  // Add dragstart event
-  cardElement.addEventListener("dragstart", (event) => {
-    // Create a data object with all necessary card information
-    const cardData = {
-      id: cardObject.id,
-      suit: cardObject.suit,
-      rank: cardObject.rank,
-      value: cardObject.value,
-      index: index,
-    };
+    // Add dragstart event
+    cardElement.addEventListener("dragstart", (event) => {
+      // Create a data object with all necessary card information
+      const cardData = {
+        id: cardObject.id,
+        suit: cardObject.suit,
+        rank: cardObject.rank,
+        value: cardObject.value,
+        index: index,
+      };
 
-    // Set drag data
-    event.dataTransfer.setData("text/plain", JSON.stringify(cardData));
-    event.dataTransfer.effectAllowed = "move";
+      // Set drag data
+      event.dataTransfer.setData("text/plain", JSON.stringify(cardData));
+      event.dataTransfer.effectAllowed = "move";
 
-    // Add dragging class for styling
-    cardElement.classList.add("dragging");
-  });
+      // Add dragging class for styling
+      cardElement.classList.add("dragging");
+    });
 
-  // Add dragend event
-  cardElement.addEventListener("dragend", () => {
-    cardElement.classList.remove("dragging");
-  });
+    // Add dragend event
+    cardElement.addEventListener("dragend", () => {
+      cardElement.classList.remove("dragging");
+    });
+  } else {
+    // Non-diamond cards are not draggable
+    cardElement.setAttribute("draggable", "false");
+    cardElement.classList.add("non-draggable");
+  }
 }
 
 /**
