@@ -10,9 +10,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - No build process required - vanilla JavaScript/HTML/CSS project
 
 ### Testing
-- No formal test framework configured
-- Manual testing by opening the game in browser and playing through scenarios
-- Test scenarios should cover: game start, room navigation, card interactions, equipment, health system, and edge cases
+- Comprehensive test suite using custom testing framework
+- **Browser testing**: Open `tests/test.html` and click "🚀 Run All Tests"
+- **Quick validation**: `cd tests && node quick-test.js`
+- **CI/CD testing**: `cd tests && node run-tests.js` (manual) or `cd tests && node run-tests.js --headless` (automated)
+- **All tests must pass before deployment** - this is enforced in the CI/CD pipeline
+- Test structure: Unit tests (`unit/`), Integration tests (`integration/`), and deployment sanity checks
 
 ## Architecture Overview
 
@@ -63,23 +66,27 @@ The game implements a card-based dungeon crawler with specific mechanics:
 - Game state is mutable and shared across modules via imports
 - Event handling uses delegation pattern for dynamically created cards
 
-### Known Incomplete Features
-According to plan.md, all core Scoundrel rules are now implemented. Remaining tasks:
-- Unit tests for deck operations and game logic
-- Comprehensive testing of edge cases and rule validation
+### Development Patterns
+- **ES6 modules**: All JavaScript uses import/export for modularity
+- **Central state management**: `gameState` object in `game.js` holds all game data
+- **Event-driven architecture**: User interactions trigger state changes and UI updates
+- **Separation of concerns**: Game logic, UI updates, and DOM manipulation are separated
+- **Native APIs**: Uses HTML5 Drag and Drop API, no external dependencies
+- **Defensive programming**: Comprehensive error handling and validation throughout
 
-### Recently Completed Features
-- ✅ 3-of-4 card play enforcement per room
-- ✅ Carrying over unused 4th card to next room
-- ✅ UI feedback for cards played counter and room progression
-- ✅ Full Scoundrel combat system with weapon vs bare-handed choices
-- ✅ "Strictly weaker" monster rule for weapon usage
-- ✅ Defeated monster stacking under weapons
-- ✅ Proper card type handling: ♦️ weapons, ♣️♠️ monsters, ♥️ potions
-- ✅ First-potion-only healing rule per room
-- ✅ Visual indicators for potion usage status
-- ✅ Win condition when dungeon deck is fully used up
-- ✅ Victory banner and celebration UI
-- ✅ Enhanced invalid action feedback with toast notifications
-- ✅ Visual card interactability states
-- ✅ Comprehensive error messaging for all game rules
+### Key Implementation Details
+- **Scoundrel deck trimming**: Removes 8 cards (red face cards and red aces) from standard 52-card deck
+- **3-of-4 card rule**: Players must play exactly 3 cards per room; the 4th carries over to next room
+- **Combat system**: Weapon damage calculation (monster value - weapon value, min 0) vs bare-handed combat
+- **Monster stacking**: Defeated monsters stack under weapons with "strictly weaker" rule enforcement
+- **Potion healing**: First potion per room heals, subsequent potions ignored
+- **Skip restrictions**: Cannot skip twice in a row, only when no cards have been played
+- **Win condition**: Game ends successfully when dungeon deck is fully exhausted
+- **State persistence**: Game state maintained across modules via shared import pattern
+
+### Quality Assurance
+- **Test coverage**: Unit tests for all core modules, integration tests for game flow
+- **Error handling**: Comprehensive validation with user-friendly error messages
+- **Performance**: No build process, vanilla JS for fast loading
+- **Accessibility**: Keyboard navigation and screen reader support
+- **Browser compatibility**: Modern browsers with ES6 module support
