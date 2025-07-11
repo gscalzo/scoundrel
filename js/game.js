@@ -302,9 +302,10 @@ function gameWin() {
  * @param {Object} card - Card to equip
  * @param {string} type - Type of equipment ('weapon')
  * @param {number} cardIndex - Index of the card in roomCards array
- * @returns {boolean} Whether the operation was successful
+ * @param {boolean} skipConfirmation - Whether to skip weapon replacement confirmation (for tests)
+ * @returns {boolean|Promise} Whether the operation was successful or Promise for async confirmation
  */
-export function equipItem(card, type, cardIndex) {
+export async function equipItem(card, type, cardIndex, skipConfirmation = false) {
   console.log(`Game logic: Equipping ${card.id} as ${type}`);
 
   if (!gameState.gameActive) {
@@ -336,6 +337,23 @@ export function equipItem(card, type, cardIndex) {
     UI.addLogMessage(`Cannot equip ${card.rank} of ${card.suit} as ${type}!`);
     UI.showToast(`${card.suit === 'diamonds' ? 'Diamonds are weapons!' : card.suit === 'hearts' ? 'Hearts are potions!' : 'Only diamonds can be weapons!'}`, "error");
     return false;
+  }
+
+  // Check if there's already a weapon equipped and show confirmation modal
+  if (type === "weapon" && gameState.currentWeapon !== null && !skipConfirmation) {
+    // Import modal function dynamically to avoid circular dependencies
+    const { showWeaponReplacementModal } = await import('./modal.js');
+    
+    const userConfirmed = await showWeaponReplacementModal(
+      card,
+      gameState.currentWeapon,
+      gameState.weaponStack
+    );
+    
+    if (!userConfirmed) {
+      UI.addLogMessage("Weapon replacement cancelled.");
+      return false;
+    }
   }
 
   // Add current weapon to discard pile if any, and clear defeated monsters stack
@@ -628,7 +646,7 @@ function canAttackMonster(monster) {
   }
   
   const lastDefeatedMonster = gameState.weaponStack[gameState.weaponStack.length - 1];
-  return monster.value < lastDefeatedMonster.value; // Must be strictly weaker
+  return monster.value <= lastDefeatedMonster.value; // Must be less than or equal
 }
 
 /**

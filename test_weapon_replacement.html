@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weapon Replacement Modal Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .test-button { padding: 10px 15px; margin: 10px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        .test-button:hover { background: #0056b3; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 3px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .modal-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        
+        .modal-title {
+            margin: 0;
+            font-size: 18px;
+        }
+        
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        
+        .modal-card-info {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+        .modal-card-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .modal-card-details {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .modal-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .modal-btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .modal-btn-primary:hover {
+            background: #0056b3;
+        }
+        
+        .modal-btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .modal-btn-secondary:hover {
+            background: #545b62;
+        }
+    </style>
+</head>
+<body>
+    <h1>Weapon Replacement Modal Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Basic Modal Functionality</h2>
+        <p>Test if the weapon replacement modal appears and functions correctly.</p>
+        <button class="test-button" id="test-basic-modal">Test Basic Modal</button>
+        <div id="basic-modal-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Modal with Weapon Stack</h2>
+        <p>Test modal with defeated monsters on the weapon.</p>
+        <button class="test-button" id="test-stack-modal">Test Modal with Monster Stack</button>
+        <div id="stack-modal-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Equipment Item Function</h2>
+        <p>Test the actual equipItem function with modal confirmation.</p>
+        <button class="test-button" id="test-equip-function">Test equipItem Function</button>
+        <div id="equip-function-result" class="result"></div>
+    </div>
+
+    <script type="module">
+        import { showWeaponReplacementModal } from './js/modal.js';
+        import * as Game from './js/game.js';
+        
+        // Test data
+        const currentWeapon = {
+            rank: '7',
+            suit: 'diamonds',
+            value: 7
+        };
+        
+        const newWeapon = {
+            rank: '10',
+            suit: 'diamonds',
+            value: 10
+        };
+        
+        const monsterStack = [
+            { rank: '5', suit: 'clubs', value: 5 },
+            { rank: '3', suit: 'spades', value: 3 }
+        ];
+        
+        function showResult(elementId, message, isSuccess) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${isSuccess ? 'success' : 'error'}`;
+        }
+        
+        // Test 1: Basic Modal
+        document.getElementById('test-basic-modal').addEventListener('click', async () => {
+            try {
+                const result = await showWeaponReplacementModal(newWeapon, currentWeapon, []);
+                showResult('basic-modal-result', 
+                    `Modal completed. User choice: ${result ? 'Replace' : 'Cancel'}`, 
+                    true
+                );
+            } catch (error) {
+                showResult('basic-modal-result', `Error: ${error.message}`, false);
+            }
+        });
+        
+        // Test 2: Modal with Stack
+        document.getElementById('test-stack-modal').addEventListener('click', async () => {
+            try {
+                const result = await showWeaponReplacementModal(newWeapon, currentWeapon, monsterStack);
+                showResult('stack-modal-result', 
+                    `Modal completed. User choice: ${result ? 'Replace' : 'Cancel'}`, 
+                    true
+                );
+            } catch (error) {
+                showResult('stack-modal-result', `Error: ${error.message}`, false);
+            }
+        });
+        
+        // Test 3: Equipment Function
+        document.getElementById('test-equip-function').addEventListener('click', async () => {
+            try {
+                // Setup game state
+                Game.startNewGame();
+                Game.gameState.currentWeapon = currentWeapon;
+                Game.gameState.weaponStack = [...monsterStack];
+                Game.gameState.roomCards = [newWeapon];
+                
+                // Mock UI functions to avoid errors
+                if (!window.mockUISetup) {
+                    window.mockUISetup = true;
+                    const originalMethods = {};
+                    
+                    // Store original methods and replace with mocks
+                    const mockMethods = [
+                        'addLogMessage', 'showToast', 'displayRoomCards', 
+                        'updateCardsPlayedDisplay', 'renderEquipment', 'updateButtonStates'
+                    ];
+                    
+                    // Simple mock that just logs what would happen
+                    mockMethods.forEach(method => {
+                        if (typeof window[method] === 'undefined') {
+                            window[method] = (...args) => {
+                                console.log(`Mock ${method} called with:`, args);
+                            };
+                        }
+                    });
+                }
+                
+                // Test the equipItem function
+                const result = await Game.equipItem(newWeapon, 'weapon', 0);
+                showResult('equip-function-result', 
+                    `equipItem completed. Result: ${result ? 'Success' : 'Failed/Cancelled'}`, 
+                    true
+                );
+            } catch (error) {
+                showResult('equip-function-result', `Error: ${error.message}`, false);
+            }
+        });
+    </script>
+</body>
+</html>

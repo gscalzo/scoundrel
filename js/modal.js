@@ -285,3 +285,43 @@ export function showConfirmation(options) {
         buttons
     });
 }
+
+/**
+ * Show a weapon replacement confirmation modal
+ * @param {Object} newWeapon - New weapon to equip
+ * @param {Object} currentWeapon - Current weapon that will be replaced
+ * @param {Array} weaponStack - Monsters on the current weapon
+ * @returns {Promise} Promise that resolves with true/false
+ */
+export function showWeaponReplacementModal(newWeapon, currentWeapon, weaponStack) {
+    const monstersText = weaponStack.length > 0 
+        ? ` and ${weaponStack.length} monster${weaponStack.length > 1 ? 's' : ''} on it`
+        : '';
+    
+    const buttons = [
+        {
+            text: 'Replace Weapon',
+            value: true,
+            className: 'modal-btn-primary'
+        },
+        {
+            text: 'Cancel',
+            value: false,
+            className: 'modal-btn-secondary'
+        }
+    ];
+
+    const message = `Equipping this weapon will discard your current ${currentWeapon.rank} of ${currentWeapon.suit}${monstersText}. Are you sure?`;
+
+    return showModal({
+        title: 'Replace Weapon?',
+        message,
+        icon: '⚔️',
+        cardInfo: {
+            rank: newWeapon.rank,
+            suit: newWeapon.suit,
+            details: `New weapon (${newWeapon.value} attack power)`
+        },
+        buttons
+    });
+}

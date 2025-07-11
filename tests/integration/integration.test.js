@@ -98,7 +98,7 @@ function testIntegration() {
       assert.assertEqual(Game.gameState.playerHealth, Game.gameState.maxHealth, 'Health should be capped at max');
     });
 
-    testRunner.test('Equipment system integration', () => {
+    testRunner.test('Equipment system integration', async () => {
       Game.startNewGame();
       
       // Create a diamond weapon card
@@ -113,7 +113,7 @@ function testIntegration() {
       Game.gameState.roomCards = [weaponCard];
       
       // Equip the weapon
-      const success = Game.equipItem(weaponCard, 'weapon', 0);
+      const success = await Game.equipItem(weaponCard, 'weapon', 0, true);
       
       assert.assertTrue(success, 'Should successfully equip weapon');
       assert.assertEqual(Game.gameState.currentWeapon.value, 7, 'Weapon should be equipped');
@@ -189,7 +189,7 @@ function testIntegration() {
       assert.assertFalse(Game.gameState.gameActive, 'Game should not be active after reset');
     });
 
-    testRunner.test('Error handling and edge cases', () => {
+    testRunner.test('Error handling and edge cases', async () => {
       // Test operations when game is not active
       Game.resetGame(); // Ensure game is not active
       
@@ -202,7 +202,7 @@ function testIntegration() {
       };
       
       // These should fail gracefully when game is not active
-      const equipResult = Game.equipItem(testCard, 'weapon', 0);
+      const equipResult = await Game.equipItem(testCard, 'weapon', 0, true);
       assert.assertFalse(equipResult, 'Equipment should fail when game not active');
       
       Game.processCardEffects(testCard, 0);
@@ -211,7 +211,7 @@ function testIntegration() {
       // Test invalid equipment type
       Game.startNewGame();
       Game.gameState.roomCards = [testCard];
-      const invalidEquip = Game.equipItem(testCard, 'invalid_type', 0);
+      const invalidEquip = await Game.equipItem(testCard, 'invalid_type', 0, true);
       assert.assertFalse(invalidEquip, 'Should reject invalid equipment type');
     });
   });

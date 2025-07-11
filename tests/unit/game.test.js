@@ -106,12 +106,12 @@ function testGameModule() {
       assert.assertEqual(resetState.cardsPlayedThisRoom, 0, 'Cards played should be 0');
     });
 
-    testRunner.test('equipItem should equip diamond as weapon', () => {
+    testRunner.test('equipItem should equip diamond as weapon', async () => {
       Game.startNewGame();
       const diamondCard = createTestCard('diamonds', '7', 7);
       Game.gameState.roomCards = [diamondCard];
       
-      const success = Game.equipItem(diamondCard, 'weapon', 0);
+      const success = await Game.equipItem(diamondCard, 'weapon', 0, true);
       
       assert.assertTrue(success, 'Should successfully equip diamond');
       assert.assertEqual(Game.gameState.currentWeapon.suit, 'diamonds', 'Should equip diamond as weapon');
@@ -119,50 +119,50 @@ function testGameModule() {
       assert.assertEqual(Game.gameState.cardsPlayedThisRoom, 1, 'Should increment cards played');
     });
 
-    testRunner.test('equipItem should reject non-diamond cards as weapons', () => {
+    testRunner.test('equipItem should reject non-diamond cards as weapons', async () => {
       Game.startNewGame();
       const heartCard = createTestCard('hearts', '5', 5);
       Game.gameState.roomCards = [heartCard];
       
-      const success = Game.equipItem(heartCard, 'weapon', 0);
+      const success = await Game.equipItem(heartCard, 'weapon', 0, true);
       
       assert.assertFalse(success, 'Should not equip heart as weapon');
       assert.assertEqual(Game.gameState.currentWeapon, null, 'Should not have weapon equipped');
       assert.assertEqual(Game.gameState.cardsPlayedThisRoom, 0, 'Should not increment cards played');
     });
 
-    testRunner.test('equipItem should replace existing weapon', () => {
+    testRunner.test('equipItem should replace existing weapon', async () => {
       Game.startNewGame();
       const firstWeapon = createTestCard('diamonds', '3', 3);
       const secondWeapon = createTestCard('diamonds', '8', 8);
       Game.gameState.roomCards = [firstWeapon, secondWeapon];
       Game.gameState.currentWeapon = firstWeapon;
       
-      const success = Game.equipItem(secondWeapon, 'weapon', 1);
+      const success = await Game.equipItem(secondWeapon, 'weapon', 1, true);
       
       assert.assertTrue(success, 'Should successfully replace weapon');
       assert.assertEqual(Game.gameState.currentWeapon.value, 8, 'Should have new weapon');
       assert.assertTrue(Game.gameState.discardPile.includes(firstWeapon), 'Old weapon should be in discard pile');
     });
 
-    testRunner.test('equipItem should not work when 3 cards already played', () => {
+    testRunner.test('equipItem should not work when 3 cards already played', async () => {
       Game.startNewGame();
       const diamondCard = createTestCard('diamonds', '7', 7);
       Game.gameState.roomCards = [diamondCard];
       Game.gameState.cardsPlayedThisRoom = 3;
       
-      const success = Game.equipItem(diamondCard, 'weapon', 0);
+      const success = await Game.equipItem(diamondCard, 'weapon', 0, true);
       
       assert.assertFalse(success, 'Should not equip when 3 cards already played');
       assert.assertEqual(Game.gameState.currentWeapon, null, 'Should not have weapon equipped');
     });
 
-    testRunner.test('equipItem should not work when game not active', () => {
+    testRunner.test('equipItem should not work when game not active', async () => {
       Game.startNewGame();
       Game.gameState.gameActive = false;
       const diamondCard = createTestCard('diamonds', '7', 7);
       
-      const success = Game.equipItem(diamondCard, 'weapon', 0);
+      const success = await Game.equipItem(diamondCard, 'weapon', 0, true);
       
       assert.assertFalse(success, 'Should not equip when game not active');
     });

@@ -74,7 +74,7 @@ export function makeDraggable(element, data) {
  * @param {Object} cardData - Data of the dropped card
  * @param {string} equipmentType - Type of equipment ('weapon')
  */
-function handleEquipmentDrop(cardData, equipmentType) {
+async function handleEquipmentDrop(cardData, equipmentType) {
     console.log(`Card dropped on ${equipmentType} slot:`, cardData);
     
     // Find the card object in the room cards
@@ -88,7 +88,7 @@ function handleEquipmentDrop(cardData, equipmentType) {
     const card = Game.gameState.roomCards[cardIndex];
     
     // Attempt to equip the item
-    Game.equipItem(card, equipmentType, cardIndex);
+    await Game.equipItem(card, equipmentType, cardIndex);
 }
 
 /**

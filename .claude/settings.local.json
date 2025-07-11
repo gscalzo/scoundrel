@@ -11,7 +11,8 @@
       "Bash(chmod:*)",
       "Bash(grep:*)",
       "Bash(open \"http://localhost:8000/test_stack.html\")",
-      "Bash(open \"http://localhost:8000/index.html\")"
+      "Bash(open \"http://localhost:8000/index.html\")",
+      "Bash(rg:*)"
     ],
     "deny": []
   }
