@@ -203,7 +203,7 @@ export function displayRoomCards(cardsArray) {
     if (slot && cardsArray[i]) {
       const cardImg = renderCard(slot, cardsArray[i], false);
       cardImg.dataset.index = i;
-      setupCardDragEvents(cardImg, cardsArray[i], i);
+      setupCardDragEvents(cardImg);
       // Visually mark played cards
       if (i < playedCount) {
         cardImg.classList.add("card-played");
@@ -219,41 +219,14 @@ export function displayRoomCards(cardsArray) {
  * @param {Object} cardObject - The card data object
  * @param {number} index - The index of the card in the room cards array
  */
-function setupCardDragEvents(cardElement, cardObject, index) {
-  // Only diamonds are draggable (can be equipped as weapons)
-  if (cardObject.suit === "diamonds") {
-    // Make card draggable
-    cardElement.setAttribute("draggable", "true");
-    cardElement.classList.add("draggable");
-
-    // Add dragstart event
-    cardElement.addEventListener("dragstart", (event) => {
-      // Create a data object with all necessary card information
-      const cardData = {
-        id: cardObject.id,
-        suit: cardObject.suit,
-        rank: cardObject.rank,
-        value: cardObject.value,
-        index: index,
-      };
-
-      // Set drag data
-      event.dataTransfer.setData("text/plain", JSON.stringify(cardData));
-      event.dataTransfer.effectAllowed = "move";
-
-      // Add dragging class for styling
-      cardElement.classList.add("dragging");
-    });
-
-    // Add dragend event
-    cardElement.addEventListener("dragend", () => {
-      cardElement.classList.remove("dragging");
-    });
-  } else {
-    // Non-diamond cards are not draggable
-    cardElement.setAttribute("draggable", "false");
-    cardElement.classList.add("non-draggable");
-  }
+function setupCardDragEvents(cardElement) {
+  // Diamonds are now equipped via click, so no cards are draggable in Scoundrel
+  // All cards use click interactions
+  cardElement.setAttribute("draggable", "false");
+  cardElement.classList.add("non-draggable");
+  
+  // Add visual feedback that cards are clickable
+  cardElement.style.cursor = "pointer";
 }
 
 /**

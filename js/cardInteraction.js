@@ -4,7 +4,7 @@
 
 import * as Game from './game.js';
 import * as UI from './ui.js';
-import { showCombatModal, showHealingModal } from './modal.js';
+import { showCombatModal, showHealingModal, showWeaponEquipModal } from './modal.js';
 
 /**
  * Handle click on a room card
@@ -46,8 +46,8 @@ export function handleCardClick(event) {
             break;
             
         case 'diamonds':
-            // Diamonds are weapons - show message to drag to weapon slot
-            Game.processCardEffects(card, cardIndex);
+            // Diamonds are weapons - show equip modal
+            handleWeaponClick(card, cardIndex);
             break;
             
         case 'clubs':
@@ -117,4 +117,23 @@ function canAttackMonster(monster) {
     
     const lastDefeatedMonster = Game.gameState.weaponStack[Game.gameState.weaponStack.length - 1];
     return monster.value <= lastDefeatedMonster.value; // Must be less than or equal
+}
+
+/**
+ * Handle clicking on a weapon card - show equip modal
+ * @param {Object} card - Weapon card
+ * @param {number} cardIndex - Index of the card
+ */
+async function handleWeaponClick(card, cardIndex) {
+    // Show weapon equip modal with current weapon info
+    const userConfirmed = await showWeaponEquipModal(
+        card,
+        Game.gameState.currentWeapon,
+        Game.gameState.weaponStack
+    );
+    
+    if (userConfirmed) {
+        // User confirmed, equip the weapon (skip confirmation since we already confirmed)
+        await Game.equipItem(card, 'weapon', cardIndex, true);
+    }
 }

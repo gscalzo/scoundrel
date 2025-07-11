@@ -506,11 +506,11 @@ function handleHeartsCard(card) {
  * @param {Object} card - Diamond card to process
  */
 function handleDiamondsCard(card) {
-  // Diamonds are weapons in Scoundrel - they should be equipped, not automatically used
+  // Diamonds are weapons in Scoundrel - they should be equipped via click, not automatically used
   UI.addLogMessage(
-    `Found ${card.rank} of diamonds (weapon). Drag to weapon slot to equip.`
+    `Found ${card.rank} of diamonds (weapon). Click to equip.`
   );
-  // The card remains in the room for the player to drag to equipment slot
+  // The card remains in the room for the player to click to equip
 }
 
 /**

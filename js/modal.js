@@ -325,3 +325,52 @@ export function showWeaponReplacementModal(newWeapon, currentWeapon, weaponStack
         buttons
     });
 }
+
+/**
+ * Show a weapon equipping modal (handles both new equipping and replacement)
+ * @param {Object} weapon - Weapon to equip
+ * @param {Object} currentWeapon - Current weapon (null if none equipped)
+ * @param {Array} weaponStack - Monsters on current weapon
+ * @returns {Promise} Promise that resolves with true/false
+ */
+export function showWeaponEquipModal(weapon, currentWeapon = null, weaponStack = []) {
+    const isReplacement = currentWeapon !== null;
+    
+    let message, title;
+    
+    if (isReplacement) {
+        const monstersText = weaponStack.length > 0 
+            ? ` and ${weaponStack.length} monster${weaponStack.length > 1 ? 's' : ''} on it`
+            : '';
+        title = 'Replace Weapon?';
+        message = `Equip this ${weapon.rank} of ${weapon.suit}? This will discard your current ${currentWeapon.rank} of ${currentWeapon.suit}${monstersText}.`;
+    } else {
+        title = 'Equip Weapon?';
+        message = `Equip this ${weapon.rank} of ${weapon.suit} as your weapon?`;
+    }
+    
+    const buttons = [
+        {
+            text: isReplacement ? 'Replace Weapon' : 'Equip Weapon',
+            value: true,
+            className: 'modal-btn-primary'
+        },
+        {
+            text: 'Cancel',
+            value: false,
+            className: 'modal-btn-secondary'
+        }
+    ];
+
+    return showModal({
+        title,
+        message,
+        icon: '⚔️',
+        cardInfo: {
+            rank: weapon.rank,
+            suit: weapon.suit,
+            details: `Weapon (${weapon.value} attack power)`
+        },
+        buttons
+    });
+}
