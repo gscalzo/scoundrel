@@ -19,6 +19,34 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Test structure: Unit tests (`unit/`), Integration tests (`integration/`), and deployment sanity checks
 - **Note**: Node.js dependencies (node_modules, package.json) are temporary and excluded from repository
 
+#### Testing Requirements for New Features
+**MANDATORY**: All new features must include comprehensive unit tests that can be run in headless mode. When adding any new functionality:
+
+1. **Add unit tests** to the appropriate test file in `tests/unit/` (e.g., `game.test.js`, `deck.test.js`)
+2. **Test coverage must include**:
+   - Happy path scenarios (feature works as expected)
+   - Edge cases and boundary conditions
+   - Error conditions and invalid inputs
+   - Integration with existing game state and rules
+3. **Run tests using**: `./run_test.sh` (executes headless tests via Puppeteer)
+4. **All tests must pass** before the feature is considered complete
+5. **Test naming convention**: Use descriptive test names that clearly state what behavior is being tested
+
+Example test structure:
+```javascript
+testRunner.test('feature should handle expected case correctly', () => {
+  // Setup game state
+  // Execute feature
+  // Assert expected outcomes
+});
+
+testRunner.test('feature should reject invalid input gracefully', () => {
+  // Test error handling and validation
+});
+```
+
+**Critical**: Never merge new features without corresponding unit tests. Use `./run_test.sh` to verify all tests pass in headless mode before considering the implementation complete.
+
 ## Architecture Overview
 
 ### Core Structure

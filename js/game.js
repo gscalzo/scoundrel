@@ -934,7 +934,7 @@ function canAttackMonster(monster) {
   }
   
   const lastDefeatedMonster = gameState.weaponStack[gameState.weaponStack.length - 1];
-  return monster.value <= lastDefeatedMonster.value; // Must be less than or equal
+  return monster.value < lastDefeatedMonster.value; // Must be strictly weaker (less than)
 }
 
 /**

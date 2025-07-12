@@ -247,6 +247,123 @@ function testGameModule() {
       
       assert.assertEqual(window.Game.gameState.cardsPlayedThisRoom, 0, 'Should not process when game not active');
     });
+
+    // Weapon stack "strictly weaker" rule tests
+    testRunner.test('weapon can attack first monster of any value', () => {
+      window.Game.startNewGame();
+      const weapon = createTestCard('diamonds', '5', 5);
+      const monster = createTestCard('clubs', '8', 8);
+      
+      // Equip weapon first
+      window.Game.gameState.currentWeapon = weapon;
+      window.Game.gameState.roomCards = [monster];
+      
+      // First monster should always be attackable
+      window.Game.processCardEffects(monster, 0);
+      
+      assert.assertEqual(window.Game.gameState.weaponStack.length, 1, 'Monster should be added to weapon stack');
+      assert.assertEqual(window.Game.gameState.weaponStack[0].value, 8, 'Monster with value 8 should be in stack');
+    });
+
+    testRunner.test('weapon can attack strictly weaker monster', () => {
+      window.Game.startNewGame();
+      const weapon = createTestCard('diamonds', '5', 5);
+      const firstMonster = createTestCard('clubs', '8', 8);
+      const weakerMonster = createTestCard('spades', '6', 6);
+      
+      // Setup: weapon equipped with one monster already defeated
+      window.Game.gameState.currentWeapon = weapon;
+      window.Game.gameState.weaponStack = [firstMonster];
+      window.Game.gameState.roomCards = [weakerMonster];
+      
+      // Should be able to attack weaker monster (6 < 8)
+      window.Game.processCardEffects(weakerMonster, 0);
+      
+      assert.assertEqual(window.Game.gameState.weaponStack.length, 2, 'Weaker monster should be added to stack');
+      assert.assertEqual(window.Game.gameState.weaponStack[1].value, 6, 'Weaker monster should be in stack');
+    });
+
+    testRunner.test('weapon cannot attack equal value monster', () => {
+      window.Game.startNewGame();
+      const weapon = createTestCard('diamonds', '5', 5);
+      const firstMonster = createTestCard('clubs', '7', 7);
+      const equalMonster = createTestCard('spades', '7', 7);
+      
+      // Setup: weapon equipped with one monster already defeated
+      window.Game.gameState.currentWeapon = weapon;
+      window.Game.gameState.weaponStack = [firstMonster];
+      window.Game.gameState.roomCards = [equalMonster];
+      window.Game.gameState.playerHealth = 20;
+      
+      // Should NOT be able to attack equal value monster (7 = 7)
+      window.Game.processCardEffects(equalMonster, 0);
+      
+      assert.assertEqual(window.Game.gameState.weaponStack.length, 1, 'Equal monster should NOT be added to stack');
+      assert.assertEqual(window.Game.gameState.cardsPlayedThisRoom, 0, 'Card should not be consumed');
+      assert.assertEqual(window.Game.gameState.roomCards.length, 1, 'Monster should remain in room');
+    });
+
+    testRunner.test('weapon cannot attack stronger monster', () => {
+      window.Game.startNewGame();
+      const weapon = createTestCard('diamonds', '5', 5);
+      const firstMonster = createTestCard('clubs', '6', 6);
+      const strongerMonster = createTestCard('spades', '9', 9);
+      
+      // Setup: weapon equipped with one monster already defeated
+      window.Game.gameState.currentWeapon = weapon;
+      window.Game.gameState.weaponStack = [firstMonster];
+      window.Game.gameState.roomCards = [strongerMonster];
+      window.Game.gameState.playerHealth = 20;
+      
+      // Should NOT be able to attack stronger monster (9 > 6)
+      window.Game.processCardEffects(strongerMonster, 0);
+      
+      assert.assertEqual(window.Game.gameState.weaponStack.length, 1, 'Stronger monster should NOT be added to stack');
+      assert.assertEqual(window.Game.gameState.cardsPlayedThisRoom, 0, 'Card should not be consumed');
+      assert.assertEqual(window.Game.gameState.roomCards.length, 1, 'Monster should remain in room');
+    });
+
+    testRunner.test('bare-handed combat always works regardless of weapon stack', () => {
+      window.Game.startNewGame();
+      const weapon = createTestCard('diamonds', '5', 5);
+      const firstMonster = createTestCard('clubs', '6', 6);
+      const strongerMonster = createTestCard('spades', '9', 9);
+      
+      // Setup: weapon equipped with one monster already defeated
+      window.Game.gameState.currentWeapon = weapon;
+      window.Game.gameState.weaponStack = [firstMonster];
+      window.Game.gameState.roomCards = [strongerMonster];
+      window.Game.gameState.playerHealth = 20;
+      
+      // Fight bare-handed should always work
+      const success = window.Game.fightBareHanded(strongerMonster, 0);
+      
+      assert.assertTrue(success, 'Bare-handed combat should succeed');
+      assert.assertEqual(window.Game.gameState.weaponStack.length, 1, 'Weapon stack should remain unchanged');
+      assert.assertEqual(window.Game.gameState.playerHealth, 11, 'Should take full damage (20 - 9 = 11)');
+      assert.assertTrue(window.Game.gameState.discardPile.includes(strongerMonster), 'Monster should be in discard pile');
+    });
+
+    testRunner.test('weapon replacement clears the weapon stack', async () => {
+      window.Game.startNewGame();
+      const firstWeapon = createTestCard('diamonds', '3', 3);
+      const secondWeapon = createTestCard('diamonds', '8', 8);
+      const monster = createTestCard('clubs', '5', 5);
+      
+      // Setup: first weapon with defeated monster
+      window.Game.gameState.currentWeapon = firstWeapon;
+      window.Game.gameState.weaponStack = [monster];
+      window.Game.gameState.roomCards = [secondWeapon];
+      
+      // Replace weapon
+      const success = await window.Game.equipItem(secondWeapon, 'weapon', 0, true);
+      
+      assert.assertTrue(success, 'Should successfully replace weapon');
+      assert.assertEqual(window.Game.gameState.currentWeapon.value, 8, 'Should have new weapon');
+      assert.assertEqual(window.Game.gameState.weaponStack.length, 0, 'Weapon stack should be cleared');
+      assert.assertTrue(window.Game.gameState.discardPile.includes(firstWeapon), 'Old weapon should be in discard pile');
+      assert.assertTrue(window.Game.gameState.discardPile.includes(monster), 'Old monsters should be in discard pile');
+    });
   });
 }
 
