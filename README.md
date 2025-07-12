@@ -21,23 +21,22 @@ A web-based card game built with vanilla JavaScript, HTML5, and CSS3. Navigate t
 
 ## 🎮 Game Overview
 
-Scoundrel is a single-player card game where you navigate through a dungeon represented by a standard deck of playing cards. Each card has different effects depending on its suit and rank:
+Scoundrel is a single-player dungeon crawler card game using a trimmed deck (44 cards - no red face cards or red aces). Navigate dangerous rooms and try to clear the entire dungeon before your health reaches zero:
 
-- **Hearts**: Health potions and healing items
-- **Diamonds**: Treasure and valuable loot
-- **Clubs**: Weapons for combat
-- **Spades**: Armor and defensive items
+- **Hearts (♥)**: Health potions (first per room heals, others ignored)
+- **Diamonds (♦)**: Weapons (equip to reduce monster damage)  
+- **Clubs/Spades (♣♠)**: Monsters (deal damage equal to their value)
 
-Face cards represent special encounters, while numbered cards represent standard rooms with different difficulty levels based on their rank.
+**Key Rule**: Weapons can only attack monsters "strictly weaker" than the last defeated monster.
 
 ## 🚀 Features
 
-- **Dynamic Card System**: Standard 52-card deck with custom meanings
-- **Equipment Management**: Find and equip weapons and armor
-- **Health System**: Manage your health to survive dangerous encounters
-- **Room Navigation**: Move through rooms represented by dealt cards
-- **Drag & Drop Interface**: Intuitive drag and drop controls
-- **Responsive Design**: Play on desktop or mobile devices
+- **Authentic Scoundrel Rules**: Faithful implementation of the classic solo card game
+- **Weapon Combat System**: Strategic equipment usage with "strictly weaker" constraints  
+- **Room-Based Gameplay**: Play exactly 3 of 4 cards per room to advance
+- **Health Management**: Start with 20 health, use potions wisely
+- **Intuitive Interface**: Click/drag interactions with visual feedback
+- **Responsive Design**: Works on desktop and mobile devices
 
 ## 🛠️ Technical Implementation
 
@@ -84,15 +83,21 @@ Cards are represented as objects with properties including:
 
 ## 🎯 How to Play
 
+### Quick Start Guide
 1. **Start Game**: Click the "Start Game" button to begin
-2. **Navigate Rooms**: Click "Next Room" to deal cards representing a new room
-3. **Deal with Encounters**: Each card has different effects:
-   - **Hearts (♥)**: Restore health
-   - **Diamonds (♦)**: Collect treasure
-   - **Clubs (♣)**: Find weapons or face enemies
-   - **Spades (♠)**: Find armor or face traps
-4. **Equip Items**: Drag cards to equipment slots to equip weapons and armor
-5. **Survive**: Try to last as long as possible!
+2. **Room Navigation**: Each room has 4 cards - you must play exactly 3 to advance
+3. **Card Interactions**:
+   - **Hearts (♥)**: Click to heal (first potion per room only)
+   - **Diamonds (♦)**: Click to equip as weapons 
+   - **Clubs/Spades (♣♠)**: Monsters - choose weapon or bare-handed combat
+4. **Combat**: Weapons reduce damage but follow "strictly weaker" rule
+5. **Objective**: Clear the entire dungeon without your health reaching 0
+
+### Game Controls
+- **Start Game**: Begin a new adventure
+- **Next Room**: Move to next room (requires 3 cards played)
+- **Reset Game**: Start over
+- **Skip Room**: Place all 4 cards under deck, deal fresh 4 (can't skip twice in a row)
 
 ## 🌐 Live Demo
 
@@ -101,86 +106,33 @@ Cards are represented as objects with properties including:
 ## 🖥️ Development
 
 ### Prerequisites
-
 No build tools or dependencies required! Just a modern web browser.
 
 ### Installation
-
 1. Clone the repository:
    ```bash
    git clone https://github.com/gscalzo/scoundrel.git
    ```
+2. Start local server: `./start_game.sh` or `python3 -m http.server 8000`
+3. Open `http://localhost:8000` in your browser
 
-2. Open `index.html` in your browser.
+### Quick Deployment to GitHub Pages
+1. **Fork** this repository to your GitHub account
+2. **Enable GitHub Pages**: Settings → Pages → Source: "GitHub Actions"  
+3. **Push to main branch** - deployment happens automatically after tests pass
+4. **Access your game** at `https://yourusername.github.io/scoundrel`
 
 ### 🧪 Testing
 
-**IMPORTANT: Tests must be run before any deployment!**
+**All tests must pass before deployment.** Run tests using:
 
-This project includes a comprehensive test suite to ensure code quality and deployment readiness:
+- **Browser**: Open `tests/test.html` and click "🚀 Run All Tests"
+- **Headless**: `./run_test.sh` (for CI/CD)
+- **Quick check**: `cd tests && node quick-test.js`
 
-#### Running Tests
+**Test Coverage**: Unit tests (game logic, deck operations), Integration tests (module interactions), Deployment sanity checks.
 
-**Local Development:**
-1. **Browser testing**: Open `tests/test.html` in your browser and click "🚀 Run All Tests"
-2. **Quick verification**: Run `cd tests && node quick-test.js` for fast validation
-3. **Selective testing**: Use "⚙️ Unit Tests Only" or "🔗 Integration Tests Only" buttons
-
-**CI/CD Environment:** Tests run automatically with multiple fallback approaches for reliability
-
-#### Test Coverage
-
-- **Unit Tests**: Core game logic, deck operations, health system, equipment mechanics
-- **Integration Tests**: Module interactions, complete game flow, state consistency
-- **Deployment Sanity**: DOM elements, event handlers, CSS loading, module imports
-
-#### Test Requirements
-
-- All tests must pass before deployment
-- Unit tests verify individual module functionality
-- Integration tests ensure proper module interaction
-- Deployment tests confirm the game works in production environment
-
-#### Test Structure
-
-```
-tests/
-├── test.html              # Main test runner page
-├── test-runner.js          # Testing framework
-├── unit/
-│   ├── deck.test.js        # Deck module unit tests
-│   └── game.test.js        # Game module unit tests
-└── integration/
-    └── integration.test.js # Integration & deployment tests
-```
-
-### GitHub Pages Deployment
-
-This project is configured for automatic deployment to GitHub Pages with **mandatory testing**:
-
-1. **Fork or clone** this repository to your GitHub account
-2. **Enable GitHub Pages** in your repository settings:
-   - Go to Settings → Pages
-   - Source: "GitHub Actions"
-3. **Set up branch protection** (see `.github/branch-protection.md` for details):
-   - Navigate to Settings → Branches
-   - Add protection rule for `main`/`master`
-   - Require status checks: Tests must pass before merging
-4. **Push to main/master branch** - deployment happens automatically **only after tests pass**
-5. **Access your game** at `https://gscalzo.github.io/scoundrel`
-
-#### 🔒 Quality Gates
-
-The deployment pipeline includes mandatory quality gates:
-
-- ✅ **All tests must pass** (unit, integration, deployment sanity)
-- ✅ **Security checks** (no sensitive files, code quality validation)
-- ✅ **Performance validation** (game loads correctly)
-- ✅ **Test coverage analysis** (all core modules covered)
-
-**Pull Requests are automatically tested** and cannot be merged unless all checks pass.
-
-📖 **For detailed deployment instructions, troubleshooting, and advanced configuration, see [DEPLOYMENT.md](DEPLOYMENT.md)**
+**CI/CD**: Tests run automatically on pull requests. All checks must pass before merging.
 
 ### Project Structure
 
@@ -211,29 +163,13 @@ scoundrel/
 
 ## 🤝 Contributing
 
-We welcome contributions! To maintain code quality, all contributions must pass our test suite:
-
-### Pull Request Process
-
 1. **Fork** the repository and create a feature branch
-2. **Make your changes** and add tests if needed
-3. **Run tests locally**: `cd tests && node run-tests.js`
-4. **Submit a Pull Request** to the main branch
-5. **Automated testing** will run on your PR
-6. **All tests must pass** before the PR can be merged
-7. **Code review** from maintainers
-8. **Merge** after approval and passing tests
+2. **Make your changes** and add unit tests (required for new features)  
+3. **Run tests**: `./run_test.sh` (must pass)
+4. **Submit a Pull Request** - automated testing will run
+5. **Code review** and merge after all checks pass
 
-### Required Checks
-
-Your PR must pass these automated checks:
-
-- 🧪 **Unit Tests**: Core game logic validation
-- 🔗 **Integration Tests**: Module interaction verification  
-- 🛡️ **Security Checks**: Code quality and security validation
-- 📊 **Test Coverage**: Adequate test coverage verification
-
-See `tests/README.md` for detailed testing information.
+**Required**: Unit tests, integration tests, security checks, and test coverage must all pass.
 
 ## 📄 License
 
