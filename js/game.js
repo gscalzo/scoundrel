@@ -513,8 +513,35 @@ export async function equipItem(card, type, cardIndex, skipConfirmation = false)
     }
   }
 
-  // Animate card moving to weapon slot
-  const roomCardElement = document.querySelector(`[data-index="${cardIndex}"]`);
+  // Helper function to complete weapon equipping
+  const completeWeaponEquip = () => {
+    // Set new weapon
+    gameState.currentWeapon = card;
+    
+    // Update UI
+    UI.renderEquipment(card, type);
+    
+    // Remove equipped card from room cards
+    if (
+      cardIndex !== undefined &&
+      cardIndex >= 0 &&
+      cardIndex < gameState.roomCards.length
+    ) {
+      updateUIAfterCardPlayed(cardIndex);
+      
+      // Check for victory after equipping
+      if (checkVictoryCondition()) {
+        UI.addLogMessage(`Equipped ${card.rank} of ${card.suit} as ${type}.`);
+        gameWin();
+        return;
+      }
+    }
+    
+    UI.addLogMessage(`Equipped ${card.rank} of ${card.suit} as ${type}.`);
+  };
+
+  // Try to animate card moving to weapon slot
+  const roomCardElement = document.querySelector(`.card-slot .card[data-index="${cardIndex}"]`);
   const weaponSlot = document.getElementById('weapon-slot');
   
   if (roomCardElement && weaponSlot) {
@@ -525,35 +552,17 @@ export async function equipItem(card, type, cardIndex, skipConfirmation = false)
         weaponSlot,
         card,
         () => {
-          // Update UI after animation
-          UI.renderEquipment(card, type);
+          // Complete weapon equipping after animation
+          completeWeaponEquip();
         }
       );
     }).catch(() => {
       // Fallback if animations fail to load
-      UI.renderEquipment(card, type);
+      completeWeaponEquip();
     });
-  }
-
-  // Set new weapon
-  gameState.currentWeapon = card;
-
-  // Remove equipped card from room cards and update UI
-  if (
-    cardIndex !== undefined &&
-    cardIndex >= 0 &&
-    cardIndex < gameState.roomCards.length
-  ) {
-    updateUIAfterCardPlayed(cardIndex);
-    
-    // Check for victory after equipping
-    if (checkVictoryCondition()) {
-      // Update UI first
-      UI.renderEquipment(card, type);
-      UI.addLogMessage(`Equipped ${card.rank} of ${card.suit} as ${type}.`);
-      gameWin();
-      return true;
-    }
+  } else {
+    // No animation possible, complete immediately
+    completeWeaponEquip();
   }
 
   // Update UI (equipment rendering is handled in animation callback)
