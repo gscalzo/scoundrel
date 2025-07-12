@@ -378,6 +378,49 @@ export function hideVictoryStatus() {
 }
 
 /**
+ * Display game over status (defeat)
+ */
+export function displayGameOverStatus() {
+  // Create a prominent defeat banner
+  let banner = document.getElementById("game-over-banner");
+  if (!banner) {
+    banner = document.createElement("div");
+    banner.id = "game-over-banner";
+    banner.className = "game-over-banner";
+    banner.style.cssText = `
+      background: linear-gradient(45deg, #c0392b, #e74c3c);
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      border: 3px solid #a93226;
+      border-radius: 10px;
+      margin: 10px;
+      animation: defeatPulse 2s ease-in-out infinite;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    `;
+    
+    // Insert at the top of the game container
+    const gameContainer = document.querySelector(".game-container");
+    gameContainer.insertBefore(banner, gameContainer.firstChild);
+  }
+  
+  banner.innerHTML = "💀 GAME OVER! YOU PERISHED IN THE DUNGEON! 💀";
+  banner.style.display = "block";
+}
+
+/**
+ * Hide the game over banner
+ */
+export function hideGameOverStatus() {
+  const banner = document.getElementById("game-over-banner");
+  if (banner) {
+    banner.style.display = "none";
+  }
+}
+
+/**
  * Show a temporary toast notification for invalid actions
  * @param {string} message - Message to display
  * @param {string} type - Type of notification: 'error', 'warning', 'info'

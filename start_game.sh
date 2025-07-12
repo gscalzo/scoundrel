@@ -2,6 +2,10 @@
 
 echo "Starting Scoundrel game server..."
 
+# Kill any existing server on port 8000
+echo "Checking for existing server on port 8000..."
+lsof -ti:8000 | xargs kill -9 2>/dev/null || true
+
 # Check if Python 3 is available
 if command -v python3 &>/dev/null; then
     echo "Starting server with Python 3..."

@@ -57,6 +57,7 @@ export function startNewGame() {
   UI.renderEquipment(null, "weapon");
   UI.updateDeckCount(gameState.deck.length);
   UI.hideVictoryStatus();
+  UI.hideGameOverStatus();
   UI.updateButtonStates(gameState);
 
   // Add game start message
@@ -76,19 +77,28 @@ export function dealRoomCards() {
   const newCardsNeeded = gameState.carryOverCard ? 3 : 4;
   
   if (gameState.deck.length < newCardsNeeded) {
-    // Not enough cards, game over or reshuffle discard pile
-    if (gameState.discardPile.length > 0) {
-      // Shuffle discard pile back into deck
+    // Not enough cards in deck - check if victory condition is met first
+    const totalAvailableCards = gameState.deck.length + gameState.discardPile.length;
+    
+    if (totalAvailableCards < newCardsNeeded) {
+      // Not enough total cards to form a new room - check if player completed current room
+      if (gameState.cardsPlayedThisRoom === 3) {
+        // Victory - player completed the room and dungeon is truly exhausted!
+        gameWin();
+        return [];
+      } else {
+        // Player hasn't completed current room, but can't proceed - shouldn't happen in normal play
+        UI.addLogMessage("Not enough cards to continue, but current room not completed. Game continues...");
+        return gameState.roomCards; // Return current room cards
+      }
+    } else if (gameState.discardPile.length > 0) {
+      // Enough total cards available - reshuffle discard pile back into deck
       gameState.deck = [
         ...gameState.deck,
         ...Deck.shuffle(gameState.discardPile),
       ];
       gameState.discardPile = [];
       UI.addLogMessage("Reshuffled discard pile back into the deck.");
-    } else {
-      // Victory - dungeon deck fully used up!
-      gameWin();
-      return [];
     }
   }
 
@@ -155,6 +165,12 @@ export function nextRoom() {
   // Increment round counter
   gameState.currentRound++;
 
+  // Check for victory condition before dealing new cards
+  if (checkVictoryCondition()) {
+    gameWin();
+    return [];
+  }
+
   // Deal new room cards (which will include the carry-over)
   dealRoomCards();
 
@@ -193,6 +209,7 @@ export function resetGame() {
   UI.updateDeckCount(0);
   UI.clearRoomCards();
   UI.hideVictoryStatus();
+  UI.hideGameOverStatus();
   UI.updateButtonStates(gameState);
 
   // Add reset message
@@ -248,9 +265,26 @@ export function updateHealth(amount) {
 function gameOver() {
   gameState.gameActive = false;
 
+  // Show game over banner
+  UI.displayGameOverStatus();
+
   UI.addLogMessage(
-    `GAME OVER! You survived ${gameState.currentRound} rooms and scored ${gameState.score} points.`
+    `💀 GAME OVER! You perished in the dungeon! 💀`
   );
+  UI.addLogMessage(
+    `Final stats: Survived ${gameState.currentRound} rooms, scored ${gameState.score} points.`
+  );
+  
+  // Show additional defeat details
+  const weaponInfo = gameState.currentWeapon 
+    ? `You were armed with ${gameState.currentWeapon.rank} of ${gameState.currentWeapon.suit}`
+    : "You fought bare-handed";
+  const monstersDefeated = gameState.weaponStack.length;
+  
+  UI.addLogMessage(
+    `${weaponInfo}. Monsters defeated with current weapon: ${monstersDefeated}.`
+  );
+  
   UI.updateButtonStates(gameState);
 
   // Disable draggable cards

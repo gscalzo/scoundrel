@@ -515,6 +515,28 @@ body {
   animation: cardDeal 0.5s ease-out forwards;
 }
 
+@keyframes victoryPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(241, 196, 15, 0.6);
+  }
+}
+
+@keyframes defeatPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 8px 16px rgba(192, 57, 43, 0.6);
+  }
+}
+
 /* Responsive Design - Enhanced Mobile Support */
 
 /* Large tablets and small desktops */
