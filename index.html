@@ -33,9 +33,9 @@
 
       <!-- Main game board area with Scoundrel layout -->
       <section class="game-board">
-        <!-- Top row: Deck pile (left), Health (center), and Room cards (right) -->
+        <!-- Top row: Deck pile (left), Room cards (center), and Discard + Health (right) -->
         <div class="top-game-row">
-          <!-- Deck area (top-left) -->
+          <!-- Deck area (left) -->
           <div class="deck-area">
             <h3>Dungeon Deck</h3>
             <div class="deck-card" id="deck-card">
@@ -44,13 +44,7 @@
             <div class="deck-count" id="deck-count">52 cards left</div>
           </div>
 
-          <!-- Health display (center) -->
-          <div class="health-area">
-            <h3>Health</h3>
-            <div class="health-value" id="health-value">20/20</div>
-          </div>
-
-          <!-- Room cards area (top-right) -->
+          <!-- Room cards area (center) -->
           <div class="room-cards">
             <h3>Current Room</h3>
             <div class="card-slots">
@@ -66,6 +60,23 @@
               <div class="card-slot" id="room-card-4">
                 <div class="empty-slot-text">Empty</div>
               </div>
+            </div>
+          </div>
+
+          <!-- Right side: Discard pile and Health -->
+          <div class="right-side-area">
+            <!-- Discard pile -->
+            <div class="discard-area">
+              <h3>Discard</h3>
+              <div class="discard-pile" id="discard-pile">
+                <div class="empty-slot-text">Empty</div>
+              </div>
+            </div>
+            
+            <!-- Health display -->
+            <div class="health-area">
+              <h3>Health</h3>
+              <div class="health-value" id="health-value">20/20</div>
             </div>
           </div>
         </div>

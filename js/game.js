@@ -5,6 +5,7 @@
 
 import * as Deck from "./deck.js";
 import * as UI from "./ui.js";
+import * as Animations from "./animations.js";
 
 // Game state object
 export const gameState = {
@@ -56,6 +57,7 @@ export function startNewGame() {
   UI.updateHealthDisplay(gameState.playerHealth, gameState.maxHealth);
   UI.renderEquipment(null, "weapon");
   UI.updateDeckCount(gameState.deck.length);
+  UI.updateDiscardPile(gameState.discardPile);
   UI.hideVictoryStatus();
   UI.hideGameOverStatus();
   UI.updateButtonStates(gameState);
@@ -119,8 +121,8 @@ export function dealRoomCards() {
   // Update deck count in UI
   UI.updateDeckCount(gameState.deck.length);
 
-  // Display the room cards
-  UI.displayRoomCards(gameState.roomCards);
+  // Display the room cards with animation for new rooms
+  UI.displayRoomCards(gameState.roomCards, true);
   // Reset room counters
   gameState.cardsPlayedThisRoom = 0;
   gameState.potionUsedThisRoom = false; // Reset potion usage for new room
@@ -208,6 +210,7 @@ export function resetGame() {
   UI.renderEquipment(null, "weapon");
   UI.updateDeckCount(0);
   UI.clearRoomCards();
+  UI.clearDiscardPile();
   UI.hideVictoryStatus();
   UI.hideGameOverStatus();
   UI.updateButtonStates(gameState);
@@ -393,6 +396,27 @@ export async function equipItem(card, type, cardIndex, skipConfirmation = false)
   // Add current weapon to discard pile if any, and clear defeated monsters stack
   if (type === "weapon" && gameState.currentWeapon !== null) {
     const monstersDiscarded = gameState.weaponStack.length;
+    const oldWeapon = gameState.currentWeapon;
+    const oldMonsters = [...gameState.weaponStack];
+    
+    // Animate weapon replacement to discard pile
+    const discardElement = document.getElementById('discard-pile');
+    const weaponSlot = document.getElementById('weapon-slot');
+    
+    if (discardElement && weaponSlot) {
+      Animations.animateWeaponReplacement(
+        weaponSlot,
+        discardElement,
+        oldWeapon,
+        oldMonsters,
+        () => {
+          // Update discard pile display after animation
+          UI.updateDiscardPile(gameState.discardPile);
+          UI.showDiscardEffect(1 + monstersDiscarded);
+        }
+      );
+    }
+    
     gameState.discardPile.push(gameState.currentWeapon);
     // Add stacked monsters to discard pile too
     gameState.discardPile.push(...gameState.weaponStack);
@@ -402,6 +426,22 @@ export async function equipItem(card, type, cardIndex, skipConfirmation = false)
     } else {
       UI.addLogMessage(`Discarded previous weapon.`);
     }
+  }
+
+  // Animate card moving to weapon slot
+  const roomCardElement = document.querySelector(`[data-index="${cardIndex}"]`);
+  const weaponSlot = document.getElementById('weapon-slot');
+  
+  if (roomCardElement && weaponSlot) {
+    Animations.animateCardToWeapon(
+      roomCardElement,
+      weaponSlot,
+      card,
+      () => {
+        // Update UI after animation
+        UI.renderEquipment(card, type);
+      }
+    );
   }
 
   // Set new weapon
@@ -429,8 +469,7 @@ export async function equipItem(card, type, cardIndex, skipConfirmation = false)
     }
   }
 
-  // Update UI
-  UI.renderEquipment(card, type);
+  // Update UI (equipment rendering is handled in animation callback)
   UI.addLogMessage(`Equipped ${card.rank} of ${card.suit} as ${type}.`);
   UI.updateButtonStates(gameState);
 
@@ -533,6 +572,7 @@ function handleHeartsCard(card) {
 
   // Add to discard pile regardless of healing effect
   gameState.discardPile.push(card);
+  UI.updateDiscardPile(gameState.discardPile);
 }
 
 /**
@@ -735,6 +775,7 @@ function handleCombat(monster, useBareHands = false) {
   
   // Add monster to discard pile
   gameState.discardPile.push(monster);
+  UI.updateDiscardPile(gameState.discardPile);
   
   return true;
 }

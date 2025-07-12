@@ -12,7 +12,8 @@
       "Bash(grep:*)",
       "Bash(open \"http://localhost:8000/test_stack.html\")",
       "Bash(open \"http://localhost:8000/index.html\")",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(true)"
     ],
     "deny": []
   }

@@ -184,8 +184,11 @@ export function clearRoomCards() {
 /**
  * Display cards in the room card slots
  * @param {Array} cardsArray - Array of card objects to display
+ * @param {boolean} animate - Whether to animate card dealing
  */
-export function displayRoomCards(cardsArray) {
+export function displayRoomCards(cardsArray, animate = false) {
+  console.log('displayRoomCards called with', cardsArray.length, 'cards, animate:', animate);
+  
   // First clear all room cards
   clearRoomCards();
   // Get how many cards have been played
@@ -196,6 +199,58 @@ export function displayRoomCards(cardsArray) {
   } catch (e) {
     playedCount = 0;
   }
+
+  if (animate && cardsArray.length > 0) {
+    console.log('Taking animation path');
+    // Import animations dynamically to avoid circular import
+    console.log('Importing animations module...');
+    import('./animations.js').then(Animations => {
+      console.log('Animations module loaded successfully');
+      const deckElement = document.getElementById('deck-card');
+      const roomSlots = [];
+      
+      // Get room slot elements
+      for (let i = 0; i < Math.min(cardsArray.length, 4); i++) {
+        const slot = document.getElementById(`room-card-${i + 1}`);
+        if (slot) {
+          roomSlots.push(slot);
+        }
+      }
+      
+      // Animate cards being dealt
+      if (deckElement && roomSlots.length > 0) {
+        console.log('Starting card dealing animation for', cardsArray.length, 'cards');
+        Animations.animateCardDealing(
+          deckElement,
+          roomSlots,
+          cardsArray,
+          () => {
+            console.log('Card dealing animation completed');
+            // After animation, render the cards normally
+            renderRoomCardsImmediate(cardsArray, playedCount);
+          }
+        );
+      } else {
+        // Fallback to immediate rendering
+        renderRoomCardsImmediate(cardsArray, playedCount);
+      }
+    }).catch(() => {
+      // Fallback if animations module fails to load
+      renderRoomCardsImmediate(cardsArray, playedCount);
+    });
+  } else {
+    console.log('Taking immediate rendering path (animate:', animate, ', cards:', cardsArray.length, ')');
+    // Immediate rendering without animation
+    renderRoomCardsImmediate(cardsArray, playedCount);
+  }
+}
+
+/**
+ * Render room cards immediately without animation
+ * @param {Array} cardsArray - Array of card objects to display
+ * @param {number} playedCount - Number of cards already played
+ */
+function renderRoomCardsImmediate(cardsArray, playedCount) {
   // Then render each card in its respective slot
   for (let i = 0; i < Math.min(cardsArray.length, 4); i++) {
     const slotId = `room-card-${i + 1}`;
@@ -514,4 +569,122 @@ export function updateCardInteractability(gameState) {
       cardElement.classList.remove('disabled');
     }
   });
+}
+
+/**
+ * Update the discard pile display
+ * @param {Array} discardPile - Array of cards in discard pile
+ */
+export function updateDiscardPile(discardPile) {
+  const discardElement = document.getElementById('discard-pile');
+  if (!discardElement) {
+    console.warn('Discard pile element not found');
+    return;
+  }
+  
+  console.log('Updating discard pile with', discardPile.length, 'cards');
+
+  // Clear existing content
+  discardElement.innerHTML = '';
+
+  if (discardPile.length > 0) {
+    // Show the top (most recent) card
+    const topCard = discardPile[discardPile.length - 1];
+    const cardImg = document.createElement('img');
+    cardImg.src = topCard.imagePath;
+    cardImg.alt = `${topCard.rank} of ${topCard.suit}`;
+    cardImg.classList.add('card');
+    discardElement.appendChild(cardImg);
+    
+    // Add updated animation
+    discardElement.classList.add('updated');
+    setTimeout(() => {
+      discardElement.classList.remove('updated');
+    }, 500);
+  } else {
+    // Show empty state
+    const emptyText = document.createElement('div');
+    emptyText.classList.add('empty-slot-text');
+    emptyText.textContent = 'Empty';
+    discardElement.appendChild(emptyText);
+  }
+  
+  // Update discard count
+  updateDiscardCount(discardPile.length);
+}
+
+/**
+ * Update the discard pile count display
+ * @param {number} count - Number of cards in discard pile
+ */
+export function updateDiscardCount(count) {
+  let discardCount = document.getElementById('discard-count');
+  if (!discardCount) {
+    // Create the count display if it doesn't exist
+    const discardArea = document.querySelector('.discard-area');
+    if (discardArea) {
+      discardCount = document.createElement('div');
+      discardCount.id = 'discard-count';
+      discardCount.className = 'discard-count';
+      discardArea.appendChild(discardCount);
+    } else {
+      console.warn('Discard area not found');
+      return;
+    }
+  }
+  
+  if (count === 0) {
+    discardCount.textContent = 'No cards';
+  } else if (count === 1) {
+    discardCount.textContent = '1 card';
+  } else {
+    discardCount.textContent = `${count} cards`;
+  }
+}
+
+/**
+ * Show a visual effect when cards are added to discard pile
+ * @param {number} cardsAdded - Number of cards added
+ */
+export function showDiscardEffect(cardsAdded = 1) {
+  const discardElement = document.getElementById('discard-pile');
+  if (discardElement) {
+    // Create a floating text effect
+    const effect = document.createElement('div');
+    effect.textContent = `+${cardsAdded}`;
+    effect.style.cssText = `
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background: var(--btn-primary);
+      color: white;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: bold;
+      z-index: 10;
+      animation: cardCountEffect 1s ease-out forwards;
+    `;
+    
+    discardElement.style.position = 'relative';
+    discardElement.appendChild(effect);
+    
+    // Remove effect after animation
+    setTimeout(() => {
+      if (effect.parentNode) {
+        effect.parentNode.removeChild(effect);
+      }
+    }, 1000);
+  }
+}
+
+/**
+ * Clear the discard pile display (for game reset)
+ */
+export function clearDiscardPile() {
+  updateDiscardPile([]);
 }

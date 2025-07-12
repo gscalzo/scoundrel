@@ -4,6 +4,7 @@
 
 import * as Game from './game.js';
 import * as UI from './ui.js';
+import * as Animations from './animations.js';
 import { showCombatModal, showHealingModal, showWeaponEquipModal } from './modal.js';
 
 /**
@@ -33,13 +34,21 @@ export function handleCardClick(event) {
             if (Game.gameState.potionUsedThisRoom) {
                 showHealingModal(card, true).then(proceed => {
                     if (proceed) {
-                        Game.processCardEffects(card, cardIndex);
+                        // Delay animation until modal is fully closed
+                        setTimeout(() => {
+                            console.log('Starting hearts animation after modal');
+                            animateCardConsumption(cardElement, card, cardIndex, 'hearts');
+                        }, 350);
                     }
                 });
             } else {
                 showHealingModal(card, false).then(proceed => {
                     if (proceed) {
-                        Game.processCardEffects(card, cardIndex);
+                        // Delay animation until modal is fully closed
+                        setTimeout(() => {
+                            console.log('Starting hearts animation after modal');
+                            animateCardConsumption(cardElement, card, cardIndex, 'hearts');
+                        }, 350);
                     }
                 });
             }
@@ -70,11 +79,18 @@ function handleMonsterClick(card, cardIndex) {
     
     if (hasWeapon && canUseWeapon) {
         // Offer choice: weapon or bare-handed
+        const cardElement = document.querySelector(`[data-index="${cardIndex}"]`);
         showCombatModal(card, Game.gameState.currentWeapon).then(choice => {
             if (choice === 'weapon') {
-                Game.processCardEffects(card, cardIndex);
+                // Delay animation until modal is fully closed
+                setTimeout(() => {
+                    animateCardConsumption(cardElement, card, cardIndex, 'monster');
+                }, 350);
             } else if (choice === 'barehanded') {
-                Game.fightBareHanded(card, cardIndex);
+                // Delay animation until modal is fully closed
+                setTimeout(() => {
+                    animateCardConsumption(cardElement, card, cardIndex, 'monster', true);
+                }, 350);
             }
         });
     } else if (hasWeapon && !canUseWeapon) {
@@ -86,16 +102,24 @@ function handleMonsterClick(card, cardIndex) {
         }
         message += '.';
         
+        const cardElement = document.querySelector(`[data-index="${cardIndex}"]`);
         showCombatModal(card, null).then(choice => {
             if (choice === 'barehanded') {
-                Game.fightBareHanded(card, cardIndex);
+                // Delay animation until modal is fully closed
+                setTimeout(() => {
+                    animateCardConsumption(cardElement, card, cardIndex, 'monster', true);
+                }, 350);
             }
         });
     } else {
         // No weapon - fight bare-handed
+        const cardElement = document.querySelector(`[data-index="${cardIndex}"]`);
         showCombatModal(card, null).then(choice => {
             if (choice === 'barehanded') {
-                Game.processCardEffects(card, cardIndex);
+                // Delay animation until modal is fully closed
+                setTimeout(() => {
+                    animateCardConsumption(cardElement, card, cardIndex, 'monster');
+                }, 350);
             }
         });
     }
@@ -133,7 +157,53 @@ async function handleWeaponClick(card, cardIndex) {
     );
     
     if (userConfirmed) {
-        // User confirmed, equip the weapon (skip confirmation since we already confirmed)
-        await Game.equipItem(card, 'weapon', cardIndex, true);
+        // Delay weapon equipping until modal is fully closed
+        setTimeout(async () => {
+            // User confirmed, equip the weapon (skip confirmation since we already confirmed)
+            await Game.equipItem(card, 'weapon', cardIndex, true);
+        }, 350);
+    }
+}
+
+/**
+ * Animate card consumption for hearts and monsters
+ * @param {HTMLElement} cardElement - The card element being consumed
+ * @param {Object} card - The card object
+ * @param {number} cardIndex - Index of the card
+ * @param {string} type - Type of card (hearts, monster)
+ * @param {boolean} bareHanded - Whether fighting bare-handed
+ */
+function animateCardConsumption(cardElement, card, cardIndex, type, bareHanded = false) {
+    const discardElement = document.getElementById('discard-pile');
+    
+    if (discardElement && cardElement) {
+        Animations.animateCardConsumption(
+            cardElement,
+            discardElement,
+            card,
+            () => {
+                // Process the card effect after animation
+                if (type === 'hearts') {
+                    Game.processCardEffects(card, cardIndex);
+                } else if (type === 'monster') {
+                    if (bareHanded) {
+                        Game.fightBareHanded(card, cardIndex);
+                    } else {
+                        Game.processCardEffects(card, cardIndex);
+                    }
+                }
+            }
+        );
+    } else {
+        // Fallback to immediate processing if animation fails
+        if (type === 'hearts') {
+            Game.processCardEffects(card, cardIndex);
+        } else if (type === 'monster') {
+            if (bareHanded) {
+                Game.fightBareHanded(card, cardIndex);
+            } else {
+                Game.processCardEffects(card, cardIndex);
+            }
+        }
     }
 }
