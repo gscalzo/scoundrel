@@ -37,9 +37,10 @@ export function updateHealthDisplay(currentHealth, maxHealth) {
  * @param {HTMLElement} cardElement - Element to render the card in
  * @param {Object} cardObject - Card object to render (null for empty/card back)
  * @param {boolean} showBack - Whether to show card back instead of empty slot
+ * @param {boolean} animate - Whether to apply card-dealt animation
  * @returns {HTMLElement} The created card image element or empty slot element
  */
-export function renderCard(cardElement, cardObject, showBack = false) {
+export function renderCard(cardElement, cardObject, showBack = false, animate = true) {
   // Clear any existing content
   cardElement.innerHTML = "";
 
@@ -58,9 +59,11 @@ export function renderCard(cardElement, cardObject, showBack = false) {
     cardImg.setAttribute("draggable", "true");
     cardImg.classList.add("draggable");
 
-    // Add to DOM with animation
+    // Add to DOM with optional animation
     cardElement.appendChild(cardImg);
-    cardImg.classList.add("card-dealt");
+    if (animate) {
+      cardImg.classList.add("card-dealt");
+    }
 
     return cardImg;
   } else {
@@ -268,12 +271,12 @@ function updateRoomCardsLayout(cardsArray, playedCount) {
     slot.innerHTML = '<div class="empty-slot-text">Empty</div>';
   }
   
-  // Then render each card in its respective slot
+  // Then render each card in its respective slot (with animation for card updates)
   for (let i = 0; i < Math.min(cardsArray.length, 4); i++) {
     const slotId = `room-card-${i + 1}`;
     const slot = document.getElementById(slotId);
     if (slot && cardsArray[i]) {
-      const cardImg = renderCard(slot, cardsArray[i], false);
+      const cardImg = renderCard(slot, cardsArray[i], false, true); // animate = true for regular updates
       cardImg.dataset.index = i;
       setupCardDragEvents(cardImg);
       // Visually mark played cards
@@ -291,12 +294,12 @@ function updateRoomCardsLayout(cardsArray, playedCount) {
  * @param {number} playedCount - Number of cards already played
  */
 function renderRoomCardsImmediate(cardsArray, playedCount) {
-  // Then render each card in its respective slot
+  // Then render each card in its respective slot (no animation since flying animation already positioned them)
   for (let i = 0; i < Math.min(cardsArray.length, 4); i++) {
     const slotId = `room-card-${i + 1}`;
     const slot = document.getElementById(slotId);
     if (slot && cardsArray[i]) {
-      const cardImg = renderCard(slot, cardsArray[i], false);
+      const cardImg = renderCard(slot, cardsArray[i], false, false); // animate = false
       cardImg.dataset.index = i;
       setupCardDragEvents(cardImg);
       // Visually mark played cards
