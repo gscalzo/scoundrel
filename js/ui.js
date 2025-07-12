@@ -195,19 +195,32 @@ let isAnimating = false;
 export function displayRoomCards(cardsArray, animate = false) {
   console.log('displayRoomCards called with', cardsArray.length, 'cards, animate:', animate);
   
-  // Get how many cards have been played
+  // Get how many cards have been played and check for carry-over
   let playedCount = 0;
+  let hasCarryOver = false;
   try {
     // Import gameState dynamically to avoid circular import
-    playedCount = require("./game.js").gameState.cardsPlayedThisRoom;
+    const gameModule = require("./game.js");
+    playedCount = gameModule.gameState.cardsPlayedThisRoom;
+    // Check if this is a new room with carry-over (4 cards but one should stay in slot 1)
+    hasCarryOver = cardsArray.length === 4 && gameModule.gameState.currentRound > 1 && playedCount === 0;
   } catch (e) {
     playedCount = 0;
   }
   
-  // Only clear all room cards when dealing new cards (animate = true)
-  // For card removal (animate = false), just update the existing layout
+  // Handle different scenarios for clearing
   if (animate) {
-    clearRoomCards();
+    if (hasCarryOver) {
+      // Don't clear slot 1 - the carry-over card should stay there
+      console.log('Preserving carry-over card in slot 1');
+      for (let i = 2; i <= 4; i++) {
+        const slot = document.getElementById(`room-card-${i}`);
+        slot.innerHTML = '<div class="empty-slot-text">Empty</div>';
+      }
+    } else {
+      // Clear all slots for normal new room
+      clearRoomCards();
+    }
   }
 
   if (animate && cardsArray.length > 0) {
@@ -219,22 +232,39 @@ export function displayRoomCards(cardsArray, animate = false) {
       console.log('Animations module loaded successfully');
       const deckElement = document.getElementById('deck-card');
       const roomSlots = [];
+      const cardsToAnimate = [];
       
-      // Get room slot elements
-      for (let i = 0; i < Math.min(cardsArray.length, 4); i++) {
-        const slot = document.getElementById(`room-card-${i + 1}`);
-        if (slot) {
-          roomSlots.push(slot);
+      // Determine which cards to animate and which slots to target
+      if (hasCarryOver) {
+        console.log('Carry-over detected: animating only 3 new cards to slots 2-4');
+        // Skip the first card (carry-over), animate only the new cards
+        for (let i = 1; i < Math.min(cardsArray.length, 4); i++) {
+          const slot = document.getElementById(`room-card-${i + 1}`);
+          if (slot) {
+            roomSlots.push(slot);
+            cardsToAnimate.push(cardsArray[i]);
+          }
+        }
+        // Update slot 1 with carry-over immediately (no animation)
+        updateSingleCardSlot(0, cardsArray[0], false);
+      } else {
+        // Normal animation for all cards
+        for (let i = 0; i < Math.min(cardsArray.length, 4); i++) {
+          const slot = document.getElementById(`room-card-${i + 1}`);
+          if (slot) {
+            roomSlots.push(slot);
+            cardsToAnimate.push(cardsArray[i]);
+          }
         }
       }
       
       // Animate cards being dealt
       if (deckElement && roomSlots.length > 0) {
-        console.log('Starting card dealing animation for', cardsArray.length, 'cards');
+        console.log('Starting card dealing animation for', cardsToAnimate.length, 'cards');
         Animations.animateCardDealing(
           deckElement,
           roomSlots,
-          cardsArray,
+          cardsToAnimate,
           () => {
             console.log('Card dealing animation completed');
             isAnimating = false;
@@ -309,6 +339,37 @@ function renderRoomCardsImmediate(cardsArray, playedCount) {
     }
   }
   updateCardsPlayedDisplay(playedCount);
+}
+
+/**
+ * Update a single card slot without affecting other slots
+ * @param {number} slotIndex - The index of the slot to update (0-3)
+ * @param {Object|null} cardObject - Card object to display, or null for empty
+ * @param {boolean} markAsPlayed - Whether to mark the card as played
+ */
+export function updateSingleCardSlot(slotIndex, cardObject = null, markAsPlayed = false) {
+  const slotId = `room-card-${slotIndex + 1}`;
+  const slot = document.getElementById(slotId);
+  
+  if (!slot) {
+    console.warn(`Slot ${slotId} not found`);
+    return;
+  }
+  
+  if (cardObject) {
+    // Render the card in the slot
+    const cardImg = renderCard(slot, cardObject, false, false); // no animation for updates
+    cardImg.dataset.index = slotIndex;
+    setupCardDragEvents(cardImg);
+    
+    // Mark as played if specified
+    if (markAsPlayed) {
+      cardImg.classList.add("card-played");
+    }
+  } else {
+    // Empty the slot
+    slot.innerHTML = '<div class="empty-slot-text">Empty</div>';
+  }
 }
 
 /**

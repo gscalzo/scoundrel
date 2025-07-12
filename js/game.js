@@ -12,8 +12,24 @@ import * as UI from "./ui.js";
  */
 function updateUIAfterCardPlayed(cardIndex) {
   if (cardIndex !== undefined && cardIndex >= 0) {
+    // Remove the card from game state
     gameState.roomCards.splice(cardIndex, 1);
-    UI.displayRoomCards(gameState.roomCards);
+    
+    // Update the UI smoothly without full re-render
+    // Clear the played card slot
+    UI.updateSingleCardSlot(cardIndex, null);
+    
+    // Shift remaining cards to fill gaps
+    for (let i = cardIndex; i < gameState.roomCards.length; i++) {
+      UI.updateSingleCardSlot(i, gameState.roomCards[i]);
+    }
+    
+    // Clear any slots beyond the remaining cards
+    for (let i = gameState.roomCards.length; i < 4; i++) {
+      UI.updateSingleCardSlot(i, null);
+    }
+    
+    // Update counters and buttons
     gameState.cardsPlayedThisRoom++;
     UI.updateCardsPlayedDisplay(gameState.cardsPlayedThisRoom);
     UI.updateButtonStates(gameState);
