@@ -5,6 +5,20 @@
 
 import * as Deck from "./deck.js";
 import * as UI from "./ui.js";
+
+/**
+ * Helper function to update UI after a card is played
+ * @param {number} cardIndex - Index of the card that was played
+ */
+function updateUIAfterCardPlayed(cardIndex) {
+  if (cardIndex !== undefined && cardIndex >= 0) {
+    gameState.roomCards.splice(cardIndex, 1);
+    UI.displayRoomCards(gameState.roomCards);
+    gameState.cardsPlayedThisRoom++;
+    UI.updateCardsPlayedDisplay(gameState.cardsPlayedThisRoom);
+    UI.updateButtonStates(gameState);
+  }
+}
 import * as Animations from "./animations.js";
 
 // Game state object
@@ -447,17 +461,13 @@ export async function equipItem(card, type, cardIndex, skipConfirmation = false)
   // Set new weapon
   gameState.currentWeapon = card;
 
-  // Remove equipped card from room cards
+  // Remove equipped card from room cards and update UI
   if (
     cardIndex !== undefined &&
     cardIndex >= 0 &&
     cardIndex < gameState.roomCards.length
   ) {
-    gameState.roomCards.splice(cardIndex, 1);
-    UI.displayRoomCards(gameState.roomCards);
-    // Increment cards played counter
-    gameState.cardsPlayedThisRoom++;
-    UI.updateCardsPlayedDisplay(gameState.cardsPlayedThisRoom);
+    updateUIAfterCardPlayed(cardIndex);
     
     // Check for victory after equipping
     if (checkVictoryCondition()) {
@@ -528,14 +538,9 @@ export function processCardEffects(card, cardIndex) {
       console.error("Unknown card suit:", card.suit);
   }
 
-  // Remove the card from room cards if it was consumed
+  // Remove the card from room cards if it was consumed and update UI
   if (cardWasConsumed && cardIndex !== undefined && cardIndex >= 0) {
-    gameState.roomCards.splice(cardIndex, 1);
-    UI.displayRoomCards(gameState.roomCards);
-    // Increment cards played counter
-    gameState.cardsPlayedThisRoom++;
-    UI.updateCardsPlayedDisplay(gameState.cardsPlayedThisRoom);
-    UI.updateButtonStates(gameState);
+    updateUIAfterCardPlayed(cardIndex);
     
     // Check for victory after playing a card
     if (checkVictoryCondition()) {
@@ -689,11 +694,7 @@ export function fightBareHanded(monster, cardIndex) {
   const combatResult = handleCombat(monster, true); // true = use bare hands
   
   if (combatResult && cardIndex !== undefined && cardIndex >= 0) {
-    gameState.roomCards.splice(cardIndex, 1);
-    UI.displayRoomCards(gameState.roomCards);
-    gameState.cardsPlayedThisRoom++;
-    UI.updateCardsPlayedDisplay(gameState.cardsPlayedThisRoom);
-    UI.updateButtonStates(gameState);
+    updateUIAfterCardPlayed(cardIndex);
     
     // Check for victory after bare-handed combat
     if (checkVictoryCondition()) {

@@ -181,6 +181,9 @@ export function clearRoomCards() {
   }
 }
 
+// Animation state tracking
+let isAnimating = false;
+
 /**
  * Display cards in the room card slots
  * @param {Array} cardsArray - Array of card objects to display
@@ -189,8 +192,6 @@ export function clearRoomCards() {
 export function displayRoomCards(cardsArray, animate = false) {
   console.log('displayRoomCards called with', cardsArray.length, 'cards, animate:', animate);
   
-  // First clear all room cards
-  clearRoomCards();
   // Get how many cards have been played
   let playedCount = 0;
   try {
@@ -199,9 +200,16 @@ export function displayRoomCards(cardsArray, animate = false) {
   } catch (e) {
     playedCount = 0;
   }
+  
+  // Only clear all room cards when dealing new cards (animate = true)
+  // For card removal (animate = false), just update the existing layout
+  if (animate) {
+    clearRoomCards();
+  }
 
   if (animate && cardsArray.length > 0) {
     console.log('Taking animation path');
+    isAnimating = true;
     // Import animations dynamically to avoid circular import
     console.log('Importing animations module...');
     import('./animations.js').then(Animations => {
@@ -226,23 +234,55 @@ export function displayRoomCards(cardsArray, animate = false) {
           cardsArray,
           () => {
             console.log('Card dealing animation completed');
+            isAnimating = false;
             // After animation, render the cards normally
             renderRoomCardsImmediate(cardsArray, playedCount);
           }
         );
       } else {
         // Fallback to immediate rendering
+        isAnimating = false;
         renderRoomCardsImmediate(cardsArray, playedCount);
       }
     }).catch(() => {
       // Fallback if animations module fails to load
+      isAnimating = false;
       renderRoomCardsImmediate(cardsArray, playedCount);
     });
   } else {
     console.log('Taking immediate rendering path (animate:', animate, ', cards:', cardsArray.length, ')');
-    // Immediate rendering without animation
-    renderRoomCardsImmediate(cardsArray, playedCount);
+    // Immediate rendering without animation - update existing layout
+    updateRoomCardsLayout(cardsArray, playedCount);
   }
+}
+
+/**
+ * Update room cards layout without clearing (for card removal)
+ * @param {Array} cardsArray - Array of card objects to display
+ * @param {number} playedCount - Number of cards already played
+ */
+function updateRoomCardsLayout(cardsArray, playedCount) {
+  // Clear all slots first
+  for (let i = 1; i <= 4; i++) {
+    const slot = document.getElementById(`room-card-${i}`)
+    slot.innerHTML = '<div class="empty-slot-text">Empty</div>';
+  }
+  
+  // Then render each card in its respective slot
+  for (let i = 0; i < Math.min(cardsArray.length, 4); i++) {
+    const slotId = `room-card-${i + 1}`;
+    const slot = document.getElementById(slotId);
+    if (slot && cardsArray[i]) {
+      const cardImg = renderCard(slot, cardsArray[i], false);
+      cardImg.dataset.index = i;
+      setupCardDragEvents(cardImg);
+      // Visually mark played cards
+      if (i < playedCount) {
+        cardImg.classList.add("card-played");
+      }
+    }
+  }
+  updateCardsPlayedDisplay(playedCount);
 }
 
 /**

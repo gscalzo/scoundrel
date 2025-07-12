@@ -43,7 +43,7 @@ function createFlyingCard(card, startPos) {
     pointer-events: none;
     border-radius: 8px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-    transition: all 3s ease-in-out;
+    transition: all 1.2s ease-in-out;
     border: 3px solid red;
   `;
   
@@ -64,7 +64,7 @@ export function animateCardMovement(fromElement, toElement, card, callback = () 
   
   // Default options
   const {
-    duration = 3000, // Slow down to 3 seconds for debugging
+    duration = 1200, // Optimized to 1.2 seconds for smooth but quick animations
     removeOriginal = true,
     addToDestination = true,
     animationType = 'move' // 'move', 'discard', 'deal'
@@ -155,7 +155,7 @@ export function animateMultipleCardsToDiscard(cardElements, discardElement, card
         discardElement,
         cards[index],
         animationCallback,
-        { animationType: 'discard', duration: 3000 }
+        { animationType: 'discard', duration: 1200 }
       );
     }, index * 100); // 100ms delay between each card
   });
@@ -174,7 +174,7 @@ export function animateCardToWeapon(fromElement, weaponSlot, card, callback = ()
     weaponSlot,
     card,
     callback,
-    { animationType: 'move', duration: 3000 }
+    { animationType: 'move', duration: 1200 }
   );
 }
 
@@ -200,7 +200,7 @@ export function animateCardConsumption(fromElement, discardElement, card, callba
         discardElement,
         card,
         callback,
-        { animationType: 'discard', duration: 3000 }
+        { animationType: 'discard', duration: 1200 }
       );
     }, 200);
   }, 200);
@@ -241,12 +241,12 @@ export function animateCardDealing(deckElement, roomSlots, cards, callback = () 
           animationCallback,
           { 
             animationType: 'deal', 
-            duration: 3000,
+            duration: 1200,
             removeOriginal: false,
             addToDestination: false
           }
         );
-      }, index * 500); // 500ms delay between each card for visibility
+      }, index * 200); // 200ms delay between each card for faster dealing
     }
   });
 }
