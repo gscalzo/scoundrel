@@ -62,6 +62,7 @@ export function handleCardClick(event) {
         case 'clubs':
         case 'spades':
             // All clubs and spades are monsters - offer combat choice
+            console.log('👹 MONSTER: Processing monster combat for', card.id, 'suit:', card.suit);
             handleMonsterClick(card, cardIndex);
             break;
     }
@@ -73,18 +74,22 @@ export function handleCardClick(event) {
  * @param {number} cardIndex - Index of the card
  */
 function handleMonsterClick(card, cardIndex) {
+    console.log('👹 HANDLE MONSTER: handleMonsterClick called for', card.id);
     // Check if player has a weapon and can use it
     const hasWeapon = Game.gameState.currentWeapon !== null;
     const canUseWeapon = hasWeapon && canAttackMonster(card);
+    console.log('🛡️ WEAPON CHECK: hasWeapon =', hasWeapon, 'canUseWeapon =', canUseWeapon);
     
     if (hasWeapon && canUseWeapon) {
         // Offer choice: weapon or bare-handed
         const cardElement = document.querySelector(`[data-index="${cardIndex}"]`);
         showCombatModal(card, Game.gameState.currentWeapon).then(choice => {
             if (choice === 'weapon') {
+                console.log('🗡️ WEAPON COMBAT: User chose weapon for', card.id);
                 // Delay animation until modal is fully closed
                 setTimeout(() => {
-                    animateCardConsumption(cardElement, card, cardIndex, 'monster');
+                    console.log('🎬 STARTING: animateMonsterToWeaponStack for', card.id);
+                    animateMonsterToWeaponStack(cardElement, card, cardIndex);
                 }, 350);
             } else if (choice === 'barehanded') {
                 // Delay animation until modal is fully closed
@@ -205,5 +210,50 @@ function animateCardConsumption(cardElement, card, cardIndex, type, bareHanded =
                 Game.processCardEffects(card, cardIndex);
             }
         }
+    }
+}
+
+/**
+ * Animate monster card to weapon stack (for weapon defeats)
+ * @param {HTMLElement} cardElement - Card DOM element
+ * @param {Object} card - Monster card object
+ * @param {number} cardIndex - Index of the card
+ */
+function animateMonsterToWeaponStack(cardElement, card, cardIndex) {
+    console.log('🎯 FUNCTION: animateMonsterToWeaponStack called for', card.id);
+    const weaponStackElement = document.getElementById('weapon-stack');
+    
+    console.log('🔍 ELEMENTS: cardElement exists?', !!cardElement, 'weaponStackElement exists?', !!weaponStackElement);
+    
+    if (weaponStackElement && cardElement) {
+        console.log('✅ ANIMATION: Starting animateCardToWeaponStack for', card.id);
+        Animations.animateCardToWeaponStack(
+            cardElement,
+            weaponStackElement,
+            card,
+            () => {
+                console.log('🏁 CALLBACK: Animation completed for', card.id, '- processing effects');
+                // Process the card effect after animation (weapon combat)
+                // Use a special flag to delay UI updates until animation completes
+                Game.processCardEffectsWithDelayedUI(card, cardIndex);
+                
+                console.log('🔄 UI UPDATE: Checking if we need to render equipment');
+                // Update weapon equipment display after animation and logic complete
+                if (Game.gameState.currentWeapon && Game.gameState.weaponStack.length > 0) {
+                    console.log('🎨 RENDERING: Updating weapon equipment display with', Game.gameState.weaponStack.length, 'monsters');
+                    // Use import to get UI module
+                    import('../js/ui.js').then(UI => {
+                        UI.renderEquipment(Game.gameState.currentWeapon, "weapon");
+                        console.log('✨ COMPLETE: Weapon equipment display updated');
+                    });
+                } else {
+                    console.log('❌ SKIP: No weapon or empty weapon stack');
+                }
+            }
+        );
+    } else {
+        console.log('⚠️ FALLBACK: Animation elements not found, using immediate processing');
+        // Fallback to immediate processing if animation fails
+        Game.processCardEffects(card, cardIndex);
     }
 }

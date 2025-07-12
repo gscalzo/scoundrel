@@ -196,6 +196,27 @@ export function animateCardToWeapon(fromElement, weaponSlot, card, callback = ()
 }
 
 /**
+ * Animate monster card being added to weapon stack
+ * @param {HTMLElement} fromElement - Source room card element
+ * @param {HTMLElement} weaponStackContainer - Weapon stack container element
+ * @param {Object} card - Monster card being added to stack
+ * @param {Function} callback - Function to call when animation completes
+ */
+export function animateCardToWeaponStack(fromElement, weaponStackContainer, card, callback = () => {}) {
+  console.log('🚀 ANIMATION START: animateCardToWeaponStack for', card.id, 'from element:', fromElement, 'to:', weaponStackContainer);
+  animateCardMovement(
+    fromElement,
+    weaponStackContainer,
+    card,
+    () => {
+      console.log('🎉 ANIMATION END: animateCardToWeaponStack completed for', card.id, '- calling callback');
+      callback();
+    },
+    { animationType: 'move', duration: 1200, addToDestination: false }
+  );
+}
+
+/**
  * Animate card being consumed (hearts, monsters)
  * @param {HTMLElement} fromElement - Source room card element
  * @param {HTMLElement} discardElement - Discard pile element

@@ -573,6 +573,60 @@ export async function equipItem(card, type, cardIndex, skipConfirmation = false)
 }
 
 /**
+ * Process card effects with delayed UI updates (for animations)
+ * @param {Object} card - Card to process
+ * @param {number} cardIndex - Index of the card in room cards
+ */
+export function processCardEffectsWithDelayedUI(card, cardIndex) {
+  console.log("🎮 DELAYED UI: Processing card effects with delayed UI for", card.id);
+
+  if (!gameState.gameActive) {
+    UI.addLogMessage("Cannot process card effects when game is not active.");
+    return;
+  }
+
+  // Check if we've already played 3 cards in this room
+  if (gameState.cardsPlayedThisRoom >= 3) {
+    UI.addLogMessage("You have already played 3 cards in this room. Use 'Next Room' to continue.");
+    UI.showToast("Already played 3 cards! Click Next Room.", "warning");
+    return;
+  }
+
+  // Process effects based on suit - same logic as processCardEffects but with delayed UI
+  let cardWasConsumed = false;
+  
+  switch (card.suit) {
+    case "clubs":
+      // Clubs are monsters - call with useBareHands = false for weapon combat
+      const clubResult = handleCombatWithDelayedUI(card, false);
+      cardWasConsumed = clubResult !== false;
+      break;
+
+    case "spades":
+      // Spades are monsters - call with useBareHands = false for weapon combat  
+      const spadeResult = handleCombatWithDelayedUI(card, false);
+      cardWasConsumed = spadeResult !== false;
+      break;
+
+    default:
+      // For non-monsters, use regular processing
+      console.warn("processCardEffectsWithDelayedUI called for non-monster card:", card.suit);
+      return processCardEffects(card, cardIndex);
+  }
+
+  // Remove the card from room cards if it was consumed and update UI
+  if (cardWasConsumed && cardIndex !== undefined && cardIndex >= 0) {
+    updateUIAfterCardPlayed(cardIndex);
+    
+    // Check for victory after playing a card
+    if (checkVictoryCondition()) {
+      gameWin();
+      return;
+    }
+  }
+}
+
+/**
  * Handle card effects when played or encountered
  * @param {Object} card - Card to process effects for
  * @param {number} cardIndex - Index of the card in roomCards array
@@ -676,6 +730,79 @@ function handleDiamondsCard(card) {
     `Found ${card.rank} of diamonds (weapon). Click to equip.`
   );
   // The card remains in the room for the player to click to equip
+}
+
+/**
+ * Handle combat with delayed UI updates (for animations)
+ * @param {Object} monster - Monster card
+ * @param {boolean} useBareHands - Whether to fight bare-handed despite having a weapon
+ * @returns {boolean} Whether combat was successful
+ */
+function handleCombatWithDelayedUI(monster, useBareHands = false) {
+  console.log("⚔️ DELAYED COMBAT: Starting combat with delayed UI for", monster.id, "useBareHands:", useBareHands);
+  const monsterValue = monster.value;
+  let actualDamage = monsterValue;
+  let combatMessage = "";
+  let canUseWeapon = false;
+  
+  // Check if weapon can be used
+  if (gameState.currentWeapon && !useBareHands) {
+    canUseWeapon = canAttackMonster(monster);
+    
+    if (canUseWeapon) {
+      console.log("✅ WEAPON USE: Can use weapon against", monster.id);
+      actualDamage = Math.max(0, monsterValue - gameState.currentWeapon.value);
+      combatMessage = `Fought ${monster.rank} of ${monster.suit} with ${gameState.currentWeapon.rank} of ${gameState.currentWeapon.suit}! `;
+      combatMessage += `Damage reduced from ${monsterValue} to ${actualDamage}.`;
+      
+      // Add defeated monster to weapon stack
+      console.log("📦 WEAPON STACK: Adding", monster.id, "to weapon stack. Stack size before:", gameState.weaponStack.length);
+      gameState.weaponStack.push(monster);
+      console.log("📦 WEAPON STACK: Stack size after:", gameState.weaponStack.length);
+      UI.addLogMessage(combatMessage);
+      // DELAY: Don't call UI.renderEquipment here - let animation callback handle it
+      console.log("⏰ DELAY: Skipping UI.renderEquipment - will be handled by animation callback");
+      // UI.renderEquipment(gameState.currentWeapon, "weapon"); // Update weapon display with stack
+    } else {
+      // Cannot use weapon due to "strictly weaker" rule
+      if (gameState.weaponStack.length > 0) {
+        const lastMonster = gameState.weaponStack[gameState.weaponStack.length - 1];
+        UI.addLogMessage(`Cannot attack ${monster.rank} of ${monster.suit} with current weapon - must be strictly weaker than last defeated monster (${lastMonster.rank}).`);
+        UI.showToast(`Monster too strong for weapon! (${monster.value} vs ${lastMonster.value})`, "error");
+      } else {
+        UI.addLogMessage(`Cannot use weapon against ${monster.rank} of ${monster.suit} for unknown reason.`);
+        UI.showToast(`Weapon combat issue! Try fighting bare-handed.`, "error");
+      }
+      return false; // Combat failed
+    }
+  } else {
+    // Bare-handed combat or no weapon
+    if (useBareHands && gameState.currentWeapon) {
+      combatMessage = `Fought ${monster.rank} of ${monster.suit} bare-handed (chose not to use weapon). Took ${actualDamage} damage.`;
+    } else {
+      combatMessage = `Fought ${monster.rank} of ${monster.suit} bare-handed. Took ${actualDamage} damage.`;
+    }
+    UI.addLogMessage(combatMessage);
+  }
+  
+  // Apply damage
+  updateHealth(-actualDamage);
+  
+  // Add monster to discard pile only if not defeated by weapon
+  // (weapon-defeated monsters are already added to weapon stack above)
+  if (!canUseWeapon || useBareHands) {
+    console.log("🗑️ DISCARD: Adding", monster.id, "to discard pile (bare-handed or weapon unusable)");
+    gameState.discardPile.push(monster);
+    UI.updateDiscardPile(gameState.discardPile);
+  } else {
+    console.log("⚡ WEAPON WIN: Monster", monster.id, "defeated by weapon - NOT adding to discard pile");
+  }
+  
+  // For weapon defeats, DON'T update the weapon display here
+  // The animation callback will handle it after the visual animation completes
+  console.log("🎬 DELAYED UI: Combat complete, letting animation callback handle UI updates");
+  
+  return true;
 }
 
 /**
@@ -860,9 +987,12 @@ function handleCombat(monster, useBareHands = false) {
   // Apply damage
   updateHealth(-actualDamage);
   
-  // Add monster to discard pile
-  gameState.discardPile.push(monster);
-  UI.updateDiscardPile(gameState.discardPile);
+  // Add monster to discard pile only if not defeated by weapon
+  // (weapon-defeated monsters are already added to weapon stack above)
+  if (!canUseWeapon || useBareHands) {
+    gameState.discardPile.push(monster);
+    UI.updateDiscardPile(gameState.discardPile);
+  }
   
   return true;
 }
