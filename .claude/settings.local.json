@@ -13,7 +13,10 @@
       "Bash(open \"http://localhost:8000/test_stack.html\")",
       "Bash(open \"http://localhost:8000/index.html\")",
       "Bash(rg:*)",
-      "Bash(true)"
+      "Bash(true)",
+      "Bash(git add:*)",
+      "Bash(ls:*)",
+      "Bash(timeout:*)"
     ],
     "deny": []
   }

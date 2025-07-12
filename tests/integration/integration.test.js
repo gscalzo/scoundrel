@@ -1,39 +1,38 @@
 /**
- * Integration tests for Scoundrel Card Game
+ * Integration tests for Scoundrel Card window.Game
  * Tests overall game flow, module integration, and deployment sanity
  */
 
-// Mock modules for testing - we'll import them in the test HTML
-let Game, Deck, UI, DragDrop, CardInteraction;
+// Modules will be available as window.Game, window.Deck, etc. when tests run
 
 // Test functions - will be called by the test runner
 function testIntegration() {
   testRunner.describe('Integration Tests', () => {
     
     testRunner.test('All modules should be available and properly exported', () => {
-      assert.assertNotNull(Game, 'Game module should be available');
-      assert.assertNotNull(Deck, 'Deck module should be available');
+      assert.assertNotNull(window.Game, 'window.Game module should be available');
+      assert.assertNotNull(window.Deck, 'window.Deck module should be available');
       
       // Check key functions are exported
-      assert.assertTrue(typeof Game.startNewGame === 'function', 'Game.startNewGame should be a function');
-      assert.assertTrue(typeof Game.nextRoom === 'function', 'Game.nextRoom should be a function');
-      assert.assertTrue(typeof Game.resetGame === 'function', 'Game.resetGame should be a function');
-      assert.assertTrue(typeof Game.updateHealth === 'function', 'Game.updateHealth should be a function');
-      assert.assertTrue(typeof Game.equipItem === 'function', 'Game.equipItem should be a function');
-      assert.assertTrue(typeof Game.processCardEffects === 'function', 'Game.processCardEffects should be a function');
+      assert.assertTrue(typeof window.Game.startNewwindow.Game === 'function', 'window.Game.startNewwindow.Game should be a function');
+      assert.assertTrue(typeof window.Game.nextRoom === 'function', 'window.Game.nextRoom should be a function');
+      assert.assertTrue(typeof window.Game.resetwindow.Game === 'function', 'window.Game.resetwindow.Game should be a function');
+      assert.assertTrue(typeof window.Game.updateHealth === 'function', 'window.Game.updateHealth should be a function');
+      assert.assertTrue(typeof window.Game.equipItem === 'function', 'window.Game.equipItem should be a function');
+      assert.assertTrue(typeof window.Game.processCardEffects === 'function', 'window.Game.processCardEffects should be a function');
       
-      assert.assertTrue(typeof Deck.createDeck === 'function', 'Deck.createDeck should be a function');
-      assert.assertTrue(typeof Deck.shuffle === 'function', 'Deck.shuffle should be a function');
-      assert.assertTrue(typeof Deck.dealCards === 'function', 'Deck.dealCards should be a function');
-      assert.assertTrue(typeof Deck.trimDeckForScoundrel === 'function', 'Deck.trimDeckForScoundrel should be a function');
+      assert.assertTrue(typeof window.Deck.createwindow.Deck === 'function', 'window.Deck.createwindow.Deck should be a function');
+      assert.assertTrue(typeof window.Deck.shuffle === 'function', 'window.Deck.shuffle should be a function');
+      assert.assertTrue(typeof window.Deck.dealCards === 'function', 'window.Deck.dealCards should be a function');
+      assert.assertTrue(typeof window.Deck.trimwindow.DeckForScoundrel === 'function', 'window.Deck.trimwindow.DeckForScoundrel should be a function');
     });
 
     testRunner.test('Complete game initialization flow', () => {
       // Start a new game
-      const gameState = Game.startNewGame();
+      const gameState = window.Game.startNewwindow.Game();
       
       // Verify deck was created and trimmed properly
-      assert.assertTrue(gameState.deck.length > 0, 'Deck should be created');
+      assert.assertTrue(gameState.deck.length > 0, 'window.Deck should be created');
       assert.assertEqual(gameState.deck.length, 44, 'Trimmed deck should have 44 cards (52 - 8 red face/ace cards)');
       
       // Verify initial room cards were dealt
@@ -49,14 +48,14 @@ function testIntegration() {
       });
     });
 
-    testRunner.test('Game flow: start -> play cards -> next room', () => {
-      Game.startNewGame();
-      const initialRoomCards = [...Game.gameState.roomCards];
+    testRunner.test('window.Game flow: start -> play cards -> next room', () => {
+      window.Game.startNewwindow.Game();
+      const initialRoomCards = [...window.Game.gameState.roomCards];
       
       // Simulate playing 3 cards (hearts for healing)
       for (let i = 0; i < 3; i++) {
-        if (Game.gameState.roomCards.length > 0) {
-          const card = Game.gameState.roomCards[0];
+        if (window.Game.gameState.roomCards.length > 0) {
+          const card = window.Game.gameState.roomCards[0];
           // Create a hearts card for testing
           const testCard = {
             id: `test_${i}_of_hearts`,
@@ -65,41 +64,41 @@ function testIntegration() {
             value: i + 2,
             imagePath: `images/cards/test_${i}_of_hearts.png`
           };
-          Game.gameState.roomCards[0] = testCard;
-          Game.processCardEffects(testCard, 0);
+          window.Game.gameState.roomCards[0] = testCard;
+          window.Game.processCardEffects(testCard, 0);
         }
       }
       
-      assert.assertEqual(Game.gameState.cardsPlayedThisRoom, 3, 'Should have played 3 cards');
-      assert.assertEqual(Game.gameState.roomCards.length, 1, 'Should have 1 card remaining');
+      assert.assertEqual(window.Game.gameState.cardsPlayedThisRoom, 3, 'Should have played 3 cards');
+      assert.assertEqual(window.Game.gameState.roomCards.length, 1, 'Should have 1 card remaining');
       
       // Move to next room
-      Game.nextRoom();
+      window.Game.nextRoom();
       
-      assert.assertEqual(Game.gameState.currentRound, 1, 'Should be in round 1');
-      assert.assertEqual(Game.gameState.cardsPlayedThisRoom, 0, 'Cards played should reset');
-      assert.assertEqual(Game.gameState.roomCards.length, 4, 'Should have 4 cards in new room (3 new + 1 carry over)');
+      assert.assertEqual(window.Game.gameState.currentRound, 1, 'Should be in round 1');
+      assert.assertEqual(window.Game.gameState.cardsPlayedThisRoom, 0, 'Cards played should reset');
+      assert.assertEqual(window.Game.gameState.roomCards.length, 4, 'Should have 4 cards in new room (3 new + 1 carry over)');
     });
 
     testRunner.test('Health system integration', () => {
-      Game.startNewGame();
-      const initialHealth = Game.gameState.playerHealth;
+      window.Game.startNewwindow.Game();
+      const initialHealth = window.Game.gameState.playerHealth;
       
       // Test damage
-      Game.updateHealth(-5);
-      assert.assertEqual(Game.gameState.playerHealth, initialHealth - 5, 'Health should decrease');
+      window.Game.updateHealth(-5);
+      assert.assertEqual(window.Game.gameState.playerHealth, initialHealth - 5, 'Health should decrease');
       
       // Test healing
-      Game.updateHealth(3);
-      assert.assertEqual(Game.gameState.playerHealth, initialHealth - 2, 'Health should increase');
+      window.Game.updateHealth(3);
+      assert.assertEqual(window.Game.gameState.playerHealth, initialHealth - 2, 'Health should increase');
       
       // Test max health cap
-      Game.updateHealth(10);
-      assert.assertEqual(Game.gameState.playerHealth, Game.gameState.maxHealth, 'Health should be capped at max');
+      window.Game.updateHealth(10);
+      assert.assertEqual(window.Game.gameState.playerHealth, window.Game.gameState.maxHealth, 'Health should be capped at max');
     });
 
     testRunner.test('Equipment system integration', async () => {
-      Game.startNewGame();
+      window.Game.startNewwindow.Game();
       
       // Create a diamond weapon card
       const weaponCard = {
@@ -110,19 +109,19 @@ function testIntegration() {
         imagePath: 'images/cards/test_weapon_of_diamonds.png'
       };
       
-      Game.gameState.roomCards = [weaponCard];
+      window.Game.gameState.roomCards = [weaponCard];
       
       // Equip the weapon
-      const success = await Game.equipItem(weaponCard, 'weapon', 0, true);
+      const success = await window.Game.equipItem(weaponCard, 'weapon', 0, true);
       
       assert.assertTrue(success, 'Should successfully equip weapon');
-      assert.assertEqual(Game.gameState.currentWeapon.value, 7, 'Weapon should be equipped');
-      assert.assertEqual(Game.gameState.cardsPlayedThisRoom, 1, 'Should increment cards played');
+      assert.assertEqual(window.Game.gameState.currentWeapon.value, 7, 'Weapon should be equipped');
+      assert.assertEqual(window.Game.gameState.cardsPlayedThisRoom, 1, 'Should increment cards played');
     });
 
     testRunner.test('Card effect processing integration', () => {
-      Game.startNewGame();
-      Game.gameState.playerHealth = 15; // Reduce health for healing test
+      window.Game.startNewwindow.Game();
+      window.Game.gameState.playerHealth = 15; // Reduce health for healing test
       
       // Test hearts card healing
       const heartCard = {
@@ -133,65 +132,65 @@ function testIntegration() {
         imagePath: 'images/cards/test_heart.png'
       };
       
-      Game.gameState.roomCards = [heartCard];
-      Game.processCardEffects(heartCard, 0);
+      window.Game.gameState.roomCards = [heartCard];
+      window.Game.processCardEffects(heartCard, 0);
       
-      assert.assertEqual(Game.gameState.playerHealth, 20, 'Should heal to full health');
-      assert.assertTrue(Game.gameState.potionUsedThisRoom, 'Should mark potion as used');
-      assert.assertTrue(Game.gameState.discardPile.includes(heartCard), 'Card should be in discard pile');
+      assert.assertEqual(window.Game.gameState.playerHealth, 20, 'Should heal to full health');
+      assert.assertTrue(window.Game.gameState.potionUsedThisRoom, 'Should mark potion as used');
+      assert.assertTrue(window.Game.gameState.discardPile.includes(heartCard), 'Card should be in discard pile');
     });
 
-    testRunner.test('Game over conditions', () => {
-      Game.startNewGame();
+    testRunner.test('window.Game over conditions', () => {
+      window.Game.startNewwindow.Game();
       
       // Test game over from health loss
-      Game.gameState.playerHealth = 1;
-      Game.updateHealth(-5);
+      window.Game.gameState.playerHealth = 1;
+      window.Game.updateHealth(-5);
       
-      assert.assertEqual(Game.gameState.playerHealth, 0, 'Health should be 0');
-      assert.assertFalse(Game.gameState.gameActive, 'Game should not be active');
+      assert.assertEqual(window.Game.gameState.playerHealth, 0, 'Health should be 0');
+      assert.assertFalse(window.Game.gameState.gameActive, 'window.Game should not be active');
     });
 
-    testRunner.test('Deck operations integration', () => {
+    testRunner.test('window.Deck operations integration', () => {
       // Test full deck creation and trimming
-      const fullDeck = Deck.createDeck();
-      assert.assertEqual(fullDeck.length, 52, 'Full deck should have 52 cards');
+      const fullwindow.Deck = window.Deck.createwindow.Deck();
+      assert.assertEqual(fullwindow.Deck.length, 52, 'Full deck should have 52 cards');
       
-      const trimmedDeck = Deck.trimDeckForScoundrel(fullDeck);
-      assert.assertEqual(trimmedDeck.length, 44, 'Trimmed deck should have 44 cards');
+      const trimmedwindow.Deck = window.Deck.trimwindow.DeckForScoundrel(fullwindow.Deck);
+      assert.assertEqual(trimmedwindow.Deck.length, 44, 'Trimmed deck should have 44 cards');
       
       // Test shuffling maintains card count and content
-      const shuffled = Deck.shuffle(trimmedDeck);
-      assert.assertEqual(shuffled.length, trimmedDeck.length, 'Shuffled deck should maintain length');
+      const shuffled = window.Deck.shuffle(trimmedwindow.Deck);
+      assert.assertEqual(shuffled.length, trimmedwindow.Deck.length, 'Shuffled deck should maintain length');
       
       // Test dealing
-      const dealResult = Deck.dealCards(shuffled, 4);
+      const dealResult = window.Deck.dealCards(shuffled, 4);
       assert.assertEqual(dealResult.dealtCards.length, 4, 'Should deal 4 cards');
-      assert.assertEqual(dealResult.remainingDeck.length, 40, 'Should have 40 cards remaining');
+      assert.assertEqual(dealResult.remainingwindow.Deck.length, 40, 'Should have 40 cards remaining');
     });
 
-    testRunner.test('Game state consistency', () => {
-      Game.startNewGame();
+    testRunner.test('window.Game state consistency', () => {
+      window.Game.startNewwindow.Game();
       
       // Test that game state remains consistent
-      const initialDeckSize = Game.gameState.deck.length;
-      const initialRoomCards = Game.gameState.roomCards.length;
+      const initialwindow.DeckSize = window.Game.gameState.deck.length;
+      const initialRoomCards = window.Game.gameState.roomCards.length;
       
-      assert.assertEqual(initialDeckSize + initialRoomCards, 44, 'Total cards should equal trimmed deck size');
+      assert.assertEqual(initialwindow.DeckSize + initialRoomCards, 44, 'Total cards should equal trimmed deck size');
       
       // Reset and verify clean state
-      Game.resetGame();
+      window.Game.resetwindow.Game();
       
-      assert.assertEqual(Game.gameState.playerHealth, Game.gameState.maxHealth, 'Health should be reset');
-      assert.assertEqual(Game.gameState.currentRound, 0, 'Round should be reset');
-      assert.assertEqual(Game.gameState.deck.length, 0, 'Deck should be empty after reset');
-      assert.assertEqual(Game.gameState.roomCards.length, 0, 'Room cards should be empty after reset');
-      assert.assertFalse(Game.gameState.gameActive, 'Game should not be active after reset');
+      assert.assertEqual(window.Game.gameState.playerHealth, window.Game.gameState.maxHealth, 'Health should be reset');
+      assert.assertEqual(window.Game.gameState.currentRound, 0, 'Round should be reset');
+      assert.assertEqual(window.Game.gameState.deck.length, 0, 'window.Deck should be empty after reset');
+      assert.assertEqual(window.Game.gameState.roomCards.length, 0, 'Room cards should be empty after reset');
+      assert.assertFalse(window.Game.gameState.gameActive, 'window.Game should not be active after reset');
     });
 
     testRunner.test('Error handling and edge cases', async () => {
       // Test operations when game is not active
-      Game.resetGame(); // Ensure game is not active
+      window.Game.resetwindow.Game(); // Ensure game is not active
       
       const testCard = {
         id: 'test_card',
@@ -202,16 +201,16 @@ function testIntegration() {
       };
       
       // These should fail gracefully when game is not active
-      const equipResult = await Game.equipItem(testCard, 'weapon', 0, true);
+      const equipResult = await window.Game.equipItem(testCard, 'weapon', 0, true);
       assert.assertFalse(equipResult, 'Equipment should fail when game not active');
       
-      Game.processCardEffects(testCard, 0);
+      window.Game.processCardEffects(testCard, 0);
       // Should not crash or change state
       
       // Test invalid equipment type
-      Game.startNewGame();
-      Game.gameState.roomCards = [testCard];
-      const invalidEquip = await Game.equipItem(testCard, 'invalid_type', 0, true);
+      window.Game.startNewwindow.Game();
+      window.Game.gameState.roomCards = [testCard];
+      const invalidEquip = await window.Game.equipItem(testCard, 'invalid_type', 0, true);
       assert.assertFalse(invalidEquip, 'Should reject invalid equipment type');
     });
   });
@@ -237,12 +236,12 @@ function testDeploymentSanity() {
       const deckCard = document.getElementById('deck-card');
       
       assert.assertNotNull(cardSlots, 'Card slots container should exist');
-      assert.assertNotNull(deckCard, 'Deck card element should exist');
+      assert.assertNotNull(deckCard, 'window.Deck card element should exist');
     });
 
-    testRunner.test('Game can start and basic UI updates work', () => {
+    testRunner.test('window.Game can start and basic UI updates work', () => {
       // Start a game and verify basic UI elements are updated
-      Game.startNewGame();
+      window.Game.startNewwindow.Game();
       
       // Check that health display exists and shows initial health
       const healthDisplay = document.querySelector('.health-display, .health');
@@ -254,12 +253,12 @@ function testDeploymentSanity() {
       // Check that deck count display exists
       const deckCountDisplay = document.querySelector('.deck-count, .cards-remaining');
       if (deckCountDisplay) {
-        assert.assertTrue(true, 'Deck count display element exists');
+        assert.assertTrue(true, 'window.Deck count display element exists');
       }
       
       // Verify game state is properly active
-      assert.assertTrue(Game.gameState.gameActive, 'Game should be active after starting');
-      assert.assertTrue(Game.gameState.roomCards.length > 0, 'Room cards should be dealt');
+      assert.assertTrue(window.Game.gameState.gameActive, 'window.Game should be active after starting');
+      assert.assertTrue(window.Game.gameState.roomCards.length > 0, 'Room cards should be dealt');
     });
 
     testRunner.test('CSS files should be loadable', () => {
@@ -274,13 +273,13 @@ function testDeploymentSanity() {
 
     testRunner.test('Module imports should work correctly', () => {
       // Verify ES6 modules are working
-      assert.assertTrue(typeof Game === 'object', 'Game module should be imported as object');
-      assert.assertTrue(typeof Deck === 'object', 'Deck module should be imported as object');
+      assert.assertTrue(typeof window.Game === 'object', 'window.Game module should be imported as object');
+      assert.assertTrue(typeof window.Deck === 'object', 'window.Deck module should be imported as object');
       
       // Test that modules have expected exports
-      assert.assertTrue('gameState' in Game, 'Game module should export gameState');
-      assert.assertTrue('SUITS' in Deck, 'Deck module should export SUITS');
-      assert.assertTrue('RANKS' in Deck, 'Deck module should export RANKS');
+      assert.assertTrue('gameState' in window.Game, 'window.Game module should export gameState');
+      assert.assertTrue('SUITS' in window.Deck, 'window.Deck module should export SUITS');
+      assert.assertTrue('RANKS' in window.Deck, 'window.Deck module should export RANKS');
     });
 
     testRunner.test('Event listeners should be properly attached', () => {
@@ -307,16 +306,16 @@ function testDeploymentSanity() {
       }
     });
 
-    testRunner.test('Game should handle page reload gracefully', () => {
+    testRunner.test('window.Game should handle page reload gracefully', () => {
       // Test that the game initializes properly after DOM load
-      Game.resetGame();
-      Game.startNewGame();
+      window.Game.resetwindow.Game();
+      window.Game.startNewwindow.Game();
       
       // Verify game starts in a clean state
-      assert.assertEqual(Game.gameState.currentRound, 0, 'Game should start at round 0');
-      assert.assertEqual(Game.gameState.playerHealth, Game.gameState.maxHealth, 'Health should start at max');
-      assert.assertEqual(Game.gameState.cardsPlayedThisRoom, 0, 'Cards played should start at 0');
-      assert.assertTrue(Game.gameState.gameActive, 'Game should be active');
+      assert.assertEqual(window.Game.gameState.currentRound, 0, 'window.Game should start at round 0');
+      assert.assertEqual(window.Game.gameState.playerHealth, window.Game.gameState.maxHealth, 'Health should start at max');
+      assert.assertEqual(window.Game.gameState.cardsPlayedThisRoom, 0, 'Cards played should start at 0');
+      assert.assertTrue(window.Game.gameState.gameActive, 'window.Game should be active');
     });
   });
 }

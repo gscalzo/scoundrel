@@ -99,7 +99,7 @@ async function runHeadlessTests() {
     // Listen for console messages from the page
     page.on('console', msg => {
       const text = msg.text();
-      if (text.includes('✅') || text.includes('❌') || text.includes('📊')) {
+      if (text.includes('✅') || text.includes('❌') || text.includes('📊') || text.includes('DEBUG') || text.includes('ERROR')) {
         console.log(text);
       }
     });

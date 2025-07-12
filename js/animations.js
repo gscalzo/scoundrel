@@ -109,6 +109,23 @@ export function animateCardMovement(fromElement, toElement, card, callback = () 
   
   // Clean up after animation
   setTimeout(() => {
+    // Add card to destination if requested
+    if (addToDestination) {
+      // Place the card in the destination element
+      const cardImg = document.createElement('img');
+      cardImg.src = card.imagePath;
+      cardImg.alt = card.id;
+      cardImg.className = 'card';
+      cardImg.dataset.cardId = card.id;
+      cardImg.dataset.suit = card.suit;
+      cardImg.dataset.rank = card.rank;
+      cardImg.dataset.value = card.value;
+      
+      // Clear destination and add card
+      toElement.innerHTML = '';
+      toElement.appendChild(cardImg);
+    }
+    
     // Remove flying card
     if (flyingCard.parentNode) {
       flyingCard.parentNode.removeChild(flyingCard);
@@ -243,7 +260,7 @@ export function animateCardDealing(deckElement, roomSlots, cards, callback = () 
             animationType: 'deal', 
             duration: 1200,
             removeOriginal: false,
-            addToDestination: false
+            addToDestination: true
           }
         );
       }, index * 200); // 200ms delay between each card for faster dealing
@@ -269,6 +286,98 @@ export function createPulseEffect(element, color = '#3498db', duration = 1000) {
       element.style.transition = '';
     }, duration / 2);
   }, duration / 2);
+}
+
+/**
+ * Animate cards sliding to new positions after a card is removed
+ * @param {Array} cardElements - Array of card elements to reposition
+ * @param {Array} targetSlots - Array of target slot elements
+ * @param {Function} callback - Function to call when all animations complete
+ */
+export function animateCardSlideToPosition(cardElements, targetSlots, callback = () => {}) {
+  if (cardElements.length === 0) {
+    callback();
+    return;
+  }
+  
+  let completedAnimations = 0;
+  const totalAnimations = cardElements.length;
+  
+  const animationCallback = () => {
+    completedAnimations++;
+    if (completedAnimations >= totalAnimations) {
+      callback();
+    }
+  };
+  
+  // Animate each card to its new position
+  cardElements.forEach((cardElement, index) => {
+    if (index < targetSlots.length && cardElement && targetSlots[index]) {
+      const startPos = getElementPosition(cardElement);
+      const endPos = getElementPosition(targetSlots[index]);
+      
+      // Only animate if there's actual movement needed
+      const distance = Math.abs(startPos.x - endPos.x) + Math.abs(startPos.y - endPos.y);
+      if (distance > 5) { // 5px threshold to avoid unnecessary animations
+        // Create a flying version of the card for smooth movement
+        const flyingCard = cardElement.cloneNode(true);
+        flyingCard.style.cssText = `
+          position: absolute;
+          left: ${startPos.x}px;
+          top: ${startPos.y}px;
+          width: ${startPos.width}px;
+          height: ${startPos.height}px;
+          z-index: 1050;
+          pointer-events: none;
+          transition: all 0.4s ease-in-out;
+        `;
+        
+        document.body.appendChild(flyingCard);
+        
+        // Hide original card during animation
+        cardElement.style.opacity = '0';
+        
+        // Start animation after a small delay
+        setTimeout(() => {
+          flyingCard.style.left = `${endPos.x}px`;
+          flyingCard.style.top = `${endPos.y}px`;
+          flyingCard.style.width = `${endPos.width}px`;
+          flyingCard.style.height = `${endPos.height}px`;
+        }, 10);
+        
+        // Clean up after animation
+        setTimeout(() => {
+          // Remove flying card
+          if (flyingCard.parentNode) {
+            flyingCard.parentNode.removeChild(flyingCard);
+          }
+          
+          // Move the actual card to the target slot
+          if (targetSlots[index] && cardElement) {
+            targetSlots[index].innerHTML = '';
+            targetSlots[index].appendChild(cardElement);
+            cardElement.style.opacity = '';
+            cardElement.style.position = '';
+            cardElement.style.left = '';
+            cardElement.style.top = '';
+            cardElement.style.width = '';
+            cardElement.style.height = '';
+          }
+          
+          animationCallback();
+        }, 450); // Slightly longer than transition duration
+      } else {
+        // No significant movement needed, just move the card
+        if (targetSlots[index] && cardElement) {
+          targetSlots[index].innerHTML = '';
+          targetSlots[index].appendChild(cardElement);
+        }
+        animationCallback();
+      }
+    } else {
+      animationCallback();
+    }
+  });
 }
 
 /**

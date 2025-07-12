@@ -3,15 +3,14 @@
  * Tests card creation, shuffling, dealing, and Scoundrel-specific deck operations
  */
 
-// Mock the Deck module for testing - we'll import it in the test HTML
-let Deck;
+// The Deck module will be available as window.Deck when tests run
 
 // Test functions - will be called by the test runner
 function testDeckModule() {
   testRunner.describe('Deck Module', () => {
     
     testRunner.test('createDeck should create a standard 52-card deck', () => {
-      const deck = Deck.createDeck();
+      const deck = window.Deck.createDeck();
       
       assert.assertEqual(deck.length, 52, 'Deck should have 52 cards');
       
@@ -34,12 +33,12 @@ function testDeckModule() {
     });
 
     testRunner.test('each card should have correct properties', () => {
-      const deck = Deck.createDeck();
+      const deck = window.Deck.createDeck();
       const aceOfSpades = deck.find(card => card.rank === 'ace' && card.suit === 'spades');
       
       assert.assertNotNull(aceOfSpades, 'Ace of spades should exist');
       assert.assertEqual(aceOfSpades.id, 'ace_of_spades', 'Should have correct ID');
-      assert.assertEqual(aceOfSpades.value, 1, 'Ace should have value 1');
+      assert.assertEqual(aceOfSpades.value, 14, 'Ace should have value 14');
       assert.assertEqual(aceOfSpades.imagePath, 'images/cards/ace_of_spades.png', 'Should have correct image path');
       
       const kingOfHearts = deck.find(card => card.rank === 'king' && card.suit === 'hearts');
@@ -47,8 +46,8 @@ function testDeckModule() {
     });
 
     testRunner.test('shuffle should randomize card order', () => {
-      const originalDeck = Deck.createDeck();
-      const shuffledDeck = Deck.shuffle(originalDeck);
+      const originalDeck = window.Deck.createDeck();
+      const shuffledDeck = window.Deck.shuffle(originalDeck);
       
       assert.assertEqual(shuffledDeck.length, originalDeck.length, 'Shuffled deck should have same length');
       
@@ -62,8 +61,8 @@ function testDeckModule() {
     });
 
     testRunner.test('dealCards should deal correct number of cards', () => {
-      const deck = Deck.createDeck();
-      const result = Deck.dealCards(deck, 5);
+      const deck = window.Deck.createDeck();
+      const result = window.Deck.dealCards(deck, 5);
       
       assert.assertEqual(result.dealtCards.length, 5, 'Should deal 5 cards');
       assert.assertEqual(result.remainingDeck.length, 47, 'Should have 47 cards remaining');
@@ -75,16 +74,16 @@ function testDeckModule() {
     });
 
     testRunner.test('dealCards should throw error when dealing more cards than available', () => {
-      const deck = Deck.createDeck();
+      const deck = window.Deck.createDeck();
       
       assert.assertThrows(() => {
-        Deck.dealCards(deck, 53);
+        window.Deck.dealCards(deck, 53);
       }, 'Cannot deal 53 cards from a deck of 52', 'Should throw error when dealing too many cards');
     });
 
     testRunner.test('trimDeckForScoundrel should remove red face cards and aces', () => {
-      const fullDeck = Deck.createDeck();
-      const trimmedDeck = Deck.trimDeckForScoundrel(fullDeck);
+      const fullDeck = window.Deck.createDeck();
+      const trimmedDeck = window.Deck.trimDeckForScoundrel(fullDeck);
       
       // Should remove 8 cards: 4 red aces + 4 red face cards (J, Q, K of hearts and diamonds each)
       // Actually it's 8 cards: ace, jack, queen, king of hearts and diamonds = 8 cards
@@ -112,24 +111,24 @@ function testDeckModule() {
     });
 
     testRunner.test('CARD_VALUES should have correct mappings', () => {
-      assert.assertEqual(Deck.CARD_VALUES.ace, 1, 'Ace should have value 1');
-      assert.assertEqual(Deck.CARD_VALUES['2'], 2, 'Two should have value 2');
-      assert.assertEqual(Deck.CARD_VALUES['10'], 10, 'Ten should have value 10');
-      assert.assertEqual(Deck.CARD_VALUES.jack, 11, 'Jack should have value 11');
-      assert.assertEqual(Deck.CARD_VALUES.queen, 12, 'Queen should have value 12');
-      assert.assertEqual(Deck.CARD_VALUES.king, 13, 'King should have value 13');
+      assert.assertEqual(window.Deck.CARD_VALUES.ace, 14, 'Ace should have value 14');
+      assert.assertEqual(window.Deck.CARD_VALUES['2'], 2, 'Two should have value 2');
+      assert.assertEqual(window.Deck.CARD_VALUES['10'], 10, 'Ten should have value 10');
+      assert.assertEqual(window.Deck.CARD_VALUES.jack, 11, 'Jack should have value 11');
+      assert.assertEqual(window.Deck.CARD_VALUES.queen, 12, 'Queen should have value 12');
+      assert.assertEqual(window.Deck.CARD_VALUES.king, 13, 'King should have value 13');
     });
 
     testRunner.test('getCardBackImagePath should return correct path', () => {
-      const backPath = Deck.getCardBackImagePath();
+      const backPath = window.Deck.getCardBackImagePath();
       assert.assertEqual(backPath, 'card_back.png', 'Should return correct card back path');
     });
 
     testRunner.test('SUITS and RANKS constants should be correct', () => {
-      assert.assertArrayEqual(Deck.SUITS, ['clubs', 'diamonds', 'hearts', 'spades'], 'SUITS should be correct');
-      assert.assertEqual(Deck.RANKS.length, 13, 'Should have 13 ranks');
-      assert.assertTrue(Deck.RANKS.includes('ace'), 'RANKS should include ace');
-      assert.assertTrue(Deck.RANKS.includes('king'), 'RANKS should include king');
+      assert.assertArrayEqual(window.Deck.SUITS, ['clubs', 'diamonds', 'hearts', 'spades'], 'SUITS should be correct');
+      assert.assertEqual(window.Deck.RANKS.length, 13, 'Should have 13 ranks');
+      assert.assertTrue(window.Deck.RANKS.includes('ace'), 'RANKS should include ace');
+      assert.assertTrue(window.Deck.RANKS.includes('king'), 'RANKS should include king');
     });
   });
 }

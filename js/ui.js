@@ -324,17 +324,38 @@ function updateRoomCardsLayout(cardsArray, playedCount) {
  * @param {number} playedCount - Number of cards already played
  */
 function renderRoomCardsImmediate(cardsArray, playedCount) {
-  // Then render each card in its respective slot (no animation since flying animation already positioned them)
+  // Check if cards are already properly positioned from animation and just update their properties
   for (let i = 0; i < Math.min(cardsArray.length, 4); i++) {
     const slotId = `room-card-${i + 1}`;
     const slot = document.getElementById(slotId);
     if (slot && cardsArray[i]) {
-      const cardImg = renderCard(slot, cardsArray[i], false, false); // animate = false
-      cardImg.dataset.index = i;
-      setupCardDragEvents(cardImg);
-      // Visually mark played cards
-      if (i < playedCount) {
-        cardImg.classList.add("card-played");
+      // Check if the slot already has the correct card from the flying animation
+      const existingCard = slot.querySelector('.card, .flying-card');
+      const expectedCardId = cardsArray[i].id;
+      
+      if (existingCard && existingCard.alt === expectedCardId) {
+        // Card is already correctly positioned from animation, just update properties
+        existingCard.classList.remove('flying-card');
+        existingCard.classList.add('card');
+        existingCard.dataset.index = i;
+        existingCard.style.cssText = ''; // Clear any animation styles
+        existingCard.setAttribute("draggable", "false");
+        existingCard.classList.add("non-draggable");
+        existingCard.style.cursor = "pointer";
+        
+        // Visually mark played cards
+        if (i < playedCount) {
+          existingCard.classList.add("card-played");
+        }
+      } else {
+        // Fallback to normal rendering if card isn't properly positioned
+        const cardImg = renderCard(slot, cardsArray[i], false, false); // animate = false
+        cardImg.dataset.index = i;
+        setupCardDragEvents(cardImg);
+        // Visually mark played cards
+        if (i < playedCount) {
+          cardImg.classList.add("card-played");
+        }
       }
     }
   }

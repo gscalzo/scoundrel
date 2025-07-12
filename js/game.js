@@ -15,19 +15,8 @@ function updateUIAfterCardPlayed(cardIndex) {
     // Remove the card from game state
     gameState.roomCards.splice(cardIndex, 1);
     
-    // Update the UI smoothly without full re-render
-    // Clear the played card slot
-    UI.updateSingleCardSlot(cardIndex, null);
-    
-    // Shift remaining cards to fill gaps
-    for (let i = cardIndex; i < gameState.roomCards.length; i++) {
-      UI.updateSingleCardSlot(i, gameState.roomCards[i]);
-    }
-    
-    // Clear any slots beyond the remaining cards
-    for (let i = gameState.roomCards.length; i < 4; i++) {
-      UI.updateSingleCardSlot(i, null);
-    }
+    // Animate remaining cards sliding to new positions
+    animateCardsAfterRemoval(cardIndex);
     
     // Update counters and buttons
     gameState.cardsPlayedThisRoom++;
@@ -35,7 +24,66 @@ function updateUIAfterCardPlayed(cardIndex) {
     UI.updateButtonStates(gameState);
   }
 }
-import * as Animations from "./animations.js";
+
+/**
+ * Animate cards sliding to new positions after one is removed
+ * @param {number} removedIndex - Index of the card that was removed
+ */
+function animateCardsAfterRemoval(removedIndex) {
+  // First, clear the removed card slot immediately
+  UI.updateSingleCardSlot(removedIndex, null);
+  
+  // Collect cards that need to be repositioned
+  const cardElements = [];
+  const targetSlots = [];
+  
+  // Get cards that are positioned after the removed card
+  for (let i = removedIndex; i < gameState.roomCards.length; i++) {
+    const currentSlot = document.getElementById(`room-card-${i + 2}`); // +2 because slot IDs are 1-based and card moved from i+1 to i
+    const targetSlot = document.getElementById(`room-card-${i + 1}`);
+    
+    if (currentSlot && targetSlot) {
+      const cardElement = currentSlot.querySelector('.card');
+      if (cardElement) {
+        cardElements.push(cardElement);
+        targetSlots.push(targetSlot);
+      }
+    }
+  }
+  
+  // If we have cards to animate, use the slide animation
+  if (cardElements.length > 0) {
+    // Import animations dynamically to avoid circular import
+    import('./animations.js').then(Animations => {
+      Animations.animateCardSlideToPosition(cardElements, targetSlots, () => {
+        // After animation completes, update data attributes
+        cardElements.forEach((cardElement, index) => {
+          if (cardElement && cardElement.dataset) {
+            cardElement.dataset.index = removedIndex + index;
+          }
+        });
+        
+        // Clear any slots beyond the remaining cards
+        for (let i = gameState.roomCards.length; i < 4; i++) {
+          UI.updateSingleCardSlot(i, null);
+        }
+      });
+    }).catch(() => {
+      // Fallback to instant repositioning if animations fail
+      for (let i = removedIndex; i < gameState.roomCards.length; i++) {
+        UI.updateSingleCardSlot(i, gameState.roomCards[i]);
+      }
+      for (let i = gameState.roomCards.length; i < 4; i++) {
+        UI.updateSingleCardSlot(i, null);
+      }
+    });
+  } else {
+    // No cards to animate, just clear remaining slots
+    for (let i = gameState.roomCards.length; i < 4; i++) {
+      UI.updateSingleCardSlot(i, null);
+    }
+  }
+}
 
 // Game state object
 export const gameState = {
@@ -434,17 +482,24 @@ export async function equipItem(card, type, cardIndex, skipConfirmation = false)
     const weaponSlot = document.getElementById('weapon-slot');
     
     if (discardElement && weaponSlot) {
-      Animations.animateWeaponReplacement(
-        weaponSlot,
-        discardElement,
-        oldWeapon,
-        oldMonsters,
-        () => {
-          // Update discard pile display after animation
-          UI.updateDiscardPile(gameState.discardPile);
-          UI.showDiscardEffect(1 + monstersDiscarded);
-        }
-      );
+      // Import animations dynamically
+      import('./animations.js').then(Animations => {
+        Animations.animateWeaponReplacement(
+          weaponSlot,
+          discardElement,
+          oldWeapon,
+          oldMonsters,
+          () => {
+            // Update discard pile display after animation
+            UI.updateDiscardPile(gameState.discardPile);
+            UI.showDiscardEffect(1 + monstersDiscarded);
+          }
+        );
+      }).catch(() => {
+        // Fallback if animations fail to load
+        UI.updateDiscardPile(gameState.discardPile);
+        UI.showDiscardEffect(1 + monstersDiscarded);
+      });
     }
     
     gameState.discardPile.push(gameState.currentWeapon);
@@ -463,15 +518,21 @@ export async function equipItem(card, type, cardIndex, skipConfirmation = false)
   const weaponSlot = document.getElementById('weapon-slot');
   
   if (roomCardElement && weaponSlot) {
-    Animations.animateCardToWeapon(
-      roomCardElement,
-      weaponSlot,
-      card,
-      () => {
-        // Update UI after animation
-        UI.renderEquipment(card, type);
-      }
-    );
+    // Import animations dynamically
+    import('./animations.js').then(Animations => {
+      Animations.animateCardToWeapon(
+        roomCardElement,
+        weaponSlot,
+        card,
+        () => {
+          // Update UI after animation
+          UI.renderEquipment(card, type);
+        }
+      );
+    }).catch(() => {
+      // Fallback if animations fail to load
+      UI.renderEquipment(card, type);
+    });
   }
 
   // Set new weapon

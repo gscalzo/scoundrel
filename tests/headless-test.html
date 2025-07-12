@@ -32,6 +32,13 @@
         <div id="deck-card"></div>
         <div class="health-display"></div>
         <div class="deck-count"></div>
+        <!-- Room card slots needed for game logic -->
+        <div id="room-card-1" class="card-slot"></div>
+        <div id="room-card-2" class="card-slot"></div>
+        <div id="room-card-3" class="card-slot"></div>
+        <div id="room-card-4" class="card-slot"></div>
+        <!-- Weapon slot needed for equipment tests -->
+        <div id="weapon-slot"></div>
     </div>
     
     <!-- Import test framework -->
@@ -39,14 +46,41 @@
     
     <!-- Import game modules directly -->
     <script type="module">
+        // Mock document.getElementById to prevent null reference errors
+        const originalGetElementById = document.getElementById;
+        document.getElementById = function(id) {
+            const element = originalGetElementById.call(this, id);
+            if (element) return element;
+            
+            // Create mock elements for missing IDs
+            const mockElement = document.createElement('div');
+            mockElement.id = id;
+            mockElement.innerHTML = '';
+            mockElement.style.cssText = '';
+            mockElement.querySelector = () => null;
+            mockElement.querySelectorAll = () => [];
+            return mockElement;
+        };
+        
         // Import game modules
         import * as DeckModule from '../js/deck.js';
         import * as GameModule from '../js/game.js';
         import * as UIModule from '../js/ui.js';
         
-        // Make modules globally available
+        // Make modules globally available in both window and global scope
         window.Deck = DeckModule;
         window.Game = GameModule;
+        
+        // Also make them available as global variables for the test scripts
+        if (typeof globalThis !== 'undefined') {
+            globalThis.Deck = DeckModule;
+            globalThis.Game = GameModule;
+        }
+        
+        // Log successful module loading
+        console.log('✅ Modules loaded successfully');
+        console.log('✅ Deck module:', typeof window.Deck);
+        console.log('✅ Game module:', typeof window.Game);
         
         // Mock UI module completely
         window.UI = {
@@ -61,7 +95,9 @@
             displayRoomCards: () => {},
             clearRoomCards: () => {},
             showToast: () => {},
-            displayVictoryStatus: () => {}
+            displayVictoryStatus: () => {},
+            updateSingleCardSlot: () => {},
+            renderCard: () => ({ dataset: {}, classList: { add: () => {} } })
         };
         
         // Test status tracking
@@ -98,6 +134,10 @@
             const message = args.join(' ');
             originalConsole.error(message);
             console.log('ERROR: ' + message);
+            // Also log the stack trace if available
+            if (args[0] instanceof Error) {
+                console.log('STACK: ' + args[0].stack);
+            }
             window.testResults.failed++;
             window.testResults.errors.push('ERROR: ' + message);
         };
@@ -115,6 +155,10 @@
                 console.log('📊 Available modules:', Object.keys(window).filter(key => 
                     ['Deck', 'Game', 'UI'].includes(key)
                 ));
+                
+                // Set up global variables for the test scripts
+                window.Deck = window.Deck;
+                window.Game = window.Game;
                 
                 // Load test modules inline since import might not work
                 await loadTestsInline();
