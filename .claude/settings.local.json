@@ -16,7 +16,8 @@
       "Bash(true)",
       "Bash(git add:*)",
       "Bash(ls:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(./run_test.sh:*)"
     ],
     "deny": []
   }
